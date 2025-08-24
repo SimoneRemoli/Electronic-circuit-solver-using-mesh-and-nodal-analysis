@@ -78,15 +78,19 @@ public class ImageUploadServlet extends HttpServlet {
 
         // Elaborazione (stub): inserirai qui la tua pipeline di riconoscimento
         CircuitProcessingService service = new CircuitProcessingService();
-        CircuitProcessingService.EquationSystem system =
-                service.process(target, method);
+        CircuitProcessingService.EquationSystem system = service.process(target, method);
 
         // Passa i dati alla JSP di risultato
         req.setAttribute("uploadedFilePath", target.toAbsolutePath().toString());
         req.setAttribute("uploadedFileName", safeName);
         req.setAttribute("method", method.name());
         req.setAttribute("notes", notes);
-        req.setAttribute("equations", system.equations);
+        req.setAttribute("equations", system.equations); //equazione pronta
+
+        System.out.println(
+                safeName + " | " + method.name() + " | " + Objects.toString(notes, "") +
+                        " | " + target.toAbsolutePath() + " | " + system.equations + " | " + notes
+        );
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("result.jsp");
         dispatcher.forward(req, resp);

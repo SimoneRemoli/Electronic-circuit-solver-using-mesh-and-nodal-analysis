@@ -18,7 +18,10 @@
 <div class="wrap">
   <h1>Risultato analisi</h1>
   <p>
-    <span class="tag">Metodo: ${method}</span>
+  <%
+              String metodo = (String) request.getAttribute("method");
+  out.println("<span class='tag'>Metodo: "+metodo+"</span>");
+  %>
     <c:if test="${not empty notes}">
       <span class="tag">Note: ${fn:escapeXml(notes)}</span>
     </c:if>
