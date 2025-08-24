@@ -21,6 +21,7 @@
   <%
               String metodo = (String) request.getAttribute("method");
               String notes = (String) request.getAttribute("notes");
+              String path = (String) request.getAttribute("uploadedFilePath");
 
   out.println("<span class='tag'>Metodo: "+metodo+"</span>");
   %>
@@ -37,14 +38,21 @@
   <div class="grid">
     <div>
       <h3>Immagine caricata</h3>
-      <p class="muted"><em>${uploadedFileName}</em></p>
-
       <%--
-        L'immagine è salvata fuori dal WAR per sicurezza.
-        Se vuoi visualizzarla, aggiungi la StaticImageServlet (vedi sotto) e usa un URL tipo:
-        <img src="${pageContext.request.contextPath}/img/${uploadedFileName}" alt="Circuito" />
+       <img src="${pageContext.request.contextPath}/img/${uploadedFileName}" alt="Circuito" />
       --%>
-      <p><small>Percorso server: ${uploadedFilePath}</small></p>
+
+
+      <%
+      String fileName = (String) request.getAttribute("uploadedFileName");
+      String imgUrl = request.getContextPath() + "/img/" + java.net.URLEncoder.encode(fileName, "UTF-8");
+      out.println("<img src=\"" + imgUrl + "\" alt='Circuito' style='max-width:100%;height:auto;border:1px solid #ddd;border-radius:8px;'>");
+      %>
+
+
+      <%
+out.println("<p style='max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;'>"+ "<small>Percorso immagine: "+path+"</small></p>");
+      %>
     </div>
 
     <div>
