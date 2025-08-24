@@ -20,11 +20,18 @@
   <p>
   <%
               String metodo = (String) request.getAttribute("method");
+              String notes = (String) request.getAttribute("notes");
+
   out.println("<span class='tag'>Metodo: "+metodo+"</span>");
   %>
-    <c:if test="${not empty notes}">
-      <span class="tag">Note: ${fn:escapeXml(notes)}</span>
-    </c:if>
+  <%
+        if (notes == null || notes.trim().isEmpty())
+        {
+            out.println("<span class='tag'>Note: Nessuna nota </span>");
+        }
+        else
+             out.println("<span class='tag'>Note: "+notes+"</span>");
+  %>
   </p>
 
   <div class="grid">
