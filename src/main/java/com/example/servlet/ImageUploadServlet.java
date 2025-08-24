@@ -86,6 +86,22 @@ public class ImageUploadServlet extends HttpServlet {
         req.setAttribute("method", method.name());
         req.setAttribute("notes", notes);
         req.setAttribute("equations", system.equations); //equazione pronta
+        CircuitParsingService parser = new CircuitParsingService();
+        CircuitParseResult res = parser.parse(target);
+        // prendi il nome del PNG di debug salvato dal parser
+        String debugName = System.getProperty("last.debug.filename");
+        if (debugName != null) {
+            req.setAttribute("debugFileName", debugName);
+        }
+
+
+// Attributi per la JSP
+        req.setAttribute("nodeCount", res.nodeCount);
+        req.setAttribute("meshCount", res.meshCount);
+        req.setAttribute("connectedComponents", res.connectedComponents);
+        req.setAttribute("componentsFound", res.components);   // lista CircuitComponent
+        req.setAttribute("nodesPx", res.nodesPx);              // lista java.awt.Point
+        req.setAttribute("branches", res.branches);            // lista int[]{a,b}
 
         System.out.println(
                 safeName + " | " + method.name() + " | " + Objects.toString(notes, "") +
