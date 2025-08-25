@@ -6,11 +6,8 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
-import org.apache.commons.io.FilenameUtils;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,10 +40,15 @@ public class ImageUploadServlet extends HttpServlet {
         int numero_resistenze = Integer.parseInt(req.getParameter("count"));
         int numero_induttanze = Integer.parseInt(req.getParameter("count2"));
         int numero_condensatori = Integer.parseInt(req.getParameter("count3"));
+        int numero_gen_corrente = Integer.parseInt(req.getParameter("count4"));
+        int numero_gen_tensione = Integer.parseInt(req.getParameter("count5"));
+
 
         List<String> valori_resistenze = new ArrayList<>();
         List<String> valori_induttanze = new ArrayList<>();
         List<String> valori_condensatori = new ArrayList<>();
+        List<String> valori_generatori_corrente = new ArrayList<>();
+        List<String> valori_generatori_tensione = new ArrayList<>();
         for(int i=0;i<numero_resistenze;i++)
         {
             valori_resistenze.add(i, req.getParameter("field"+(i+1)));
@@ -58,6 +60,14 @@ public class ImageUploadServlet extends HttpServlet {
         for(int i=0;i<numero_condensatori;i++)
         {
             valori_condensatori.add(i, req.getParameter("field3"+(i+1)));
+        }
+        for(int i=0;i<numero_gen_corrente;i++)
+        {
+            valori_generatori_corrente.add(i, req.getParameter("field4"+(i+1)));
+        }
+        for(int i=0;i<numero_gen_tensione;i++)
+        {
+            valori_generatori_tensione.add(i, req.getParameter("field5"+(i+1)));
         }
 
 
@@ -97,6 +107,14 @@ public class ImageUploadServlet extends HttpServlet {
         for(int i=0;i<numero_condensatori;i++)
         {
             System.out.println(valori_condensatori.get(i));
+        }
+        for(int i=0;i<numero_gen_corrente;i++)
+        {
+            System.out.println(valori_generatori_corrente.get(i));
+        }
+        for(int i=0;i<numero_gen_tensione;i++)
+        {
+            System.out.println(valori_generatori_tensione.get(i));
         }
         RequestDispatcher dispatcher = req.getRequestDispatcher("result.jsp");
         dispatcher.forward(req, resp);

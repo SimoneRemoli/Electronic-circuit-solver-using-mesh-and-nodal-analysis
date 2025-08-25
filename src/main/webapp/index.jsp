@@ -85,6 +85,37 @@
                      <div id="inputs3"></div>
 
 
+            <h1>Generatori di Corrente</h1>
+
+                               <form method="post" action="#">
+                                 <div class="row">
+                                   <label for="count4">Quanti generatori di corrente?</label>
+                                   <select id="count4" name="count4" required>
+                                     <option value="" selected disabled>Seleziona…</option>
+                                     <% for (int i = 1; i <= 50; i++) { %>
+                                       <option value="<%= i %>"><%= i %></option>
+                                     <% } %>
+                                   </select>
+                                 </div>
+
+                                 <div id="inputs4"></div>
+
+            <h1>Generatori di Tensione</h1>
+
+                                           <form method="post" action="#">
+                                             <div class="row">
+                                               <label for="count5">Quanti generatori di tensione?</label>
+                                               <select id="count5" name="count5" required>
+                                                 <option value="" selected disabled>Seleziona…</option>
+                                                 <% for (int i = 1; i <= 50; i++) { %>
+                                                   <option value="<%= i %>"><%= i %></option>
+                                                 <% } %>
+                                               </select>
+                                             </div>
+
+                                             <div id="inputs5"></div>
+
+
 
 
 
@@ -220,6 +251,82 @@
                      });
                    })();
                  </script>
+
+
+
+                 <script>
+                                    (function () {
+                                      const select = document.getElementById('count4');
+                                      const container = document.getElementById('inputs4');
+
+                                      select.addEventListener('change', function () {
+                                        const n = parseInt(this.value, 10) || 0;
+
+                                        // Svuota e ricrea
+                                        container.innerHTML = '';
+                                        const frag = document.createDocumentFragment();
+
+                                        for (let i = 1; i <= n; i++) {
+                                          const row = document.createElement('div');
+                                          row.className = 'row';
+
+                                          const label = document.createElement('label');
+                                          label.htmlFor = 'field4' + i;
+                                          label.textContent = 'Valore del generatore di corrente ' + i;
+
+                                          const input = document.createElement('input');
+                                          input.type = 'text';
+                                          input.id = 'field4' + i; //id per accede dalla servlet
+                                          input.name = 'field4' + i;   // es. field1, field2, ...
+                                          input.placeholder = 'Valore del generatore di corrente';
+
+                                          row.appendChild(label);
+                                          row.appendChild(input);
+                                          frag.appendChild(row);
+                                        }
+
+                                        container.appendChild(frag);
+                                      });
+                                    })();
+                                  </script>
+
+
+
+         <script>
+                            (function () {
+                              const select = document.getElementById('count5');
+                              const container = document.getElementById('inputs5');
+
+                              select.addEventListener('change', function () {
+                                const n = parseInt(this.value, 10) || 0;
+
+                                // Svuota e ricrea
+                                container.innerHTML = '';
+                                const frag = document.createDocumentFragment();
+
+                                for (let i = 1; i <= n; i++) {
+                                  const row = document.createElement('div');
+                                  row.className = 'row';
+
+                                  const label = document.createElement('label');
+                                  label.htmlFor = 'field5' + i;
+                                  label.textContent = 'Valore del generatore di tensione ' + i;
+
+                                  const input = document.createElement('input');
+                                  input.type = 'text';
+                                  input.id = 'field5' + i; //id per accede dalla servlet
+                                  input.name = 'field5' + i;   // es. field1, field2, ...
+                                  input.placeholder = 'Valore in Volt';
+
+                                  row.appendChild(label);
+                                  row.appendChild(input);
+                                  frag.appendChild(row);
+                                }
+
+                                container.appendChild(frag);
+                              });
+                            })();
+                          </script>
 
 
 
