@@ -53,6 +53,60 @@
 
           <div id="inputs"></div>
 
+           <h1>Induttanze</h1>
+
+                  <form method="post" action="#">
+                    <div class="row">
+                      <label for="count2">Quante Induttanze?</label>
+                      <select id="count2" name="count2" required>
+                        <option value="" selected disabled>Seleziona…</option>
+                        <% for (int i = 1; i <= 50; i++) { %>
+                          <option value="<%= i %>"><%= i %></option>
+                        <% } %>
+                      </select>
+                    </div>
+
+                   <div id="inputs2"></div>
+
+
+            <h1>Condensatori</h1>
+
+                   <form method="post" action="#">
+                     <div class="row">
+                       <label for="count3">Quanti Condensatori?</label>
+                       <select id="count3" name="count3" required>
+                         <option value="" selected disabled>Seleziona…</option>
+                         <% for (int i = 1; i <= 50; i++) { %>
+                           <option value="<%= i %>"><%= i %></option>
+                         <% } %>
+                       </select>
+                     </div>
+
+                     <div id="inputs3"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         <noscript>Attiva JavaScript per generare i campi automaticamente.</noscript>
@@ -79,9 +133,9 @@
 
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.id = 'field' + i;
+                input.id = 'field' + i; //id per accede dalla servlet
                 input.name = 'field' + i;   // es. field1, field2, ...
-                input.placeholder = 'Valore in ohm';
+                input.placeholder = 'Valore in Ohm';
 
                 row.appendChild(label);
                 row.appendChild(input);
@@ -92,6 +146,80 @@
             });
           })();
         </script>
+
+
+         <script>
+                  (function () {
+                    const select = document.getElementById('count2');
+                    const container = document.getElementById('inputs2');
+
+                    select.addEventListener('change', function () {
+                      const n = parseInt(this.value, 10) || 0;
+
+                      // Svuota e ricrea
+                      container.innerHTML = '';
+                      const frag = document.createDocumentFragment();
+
+                      for (let i = 1; i <= n; i++) {
+                        const row = document.createElement('div');
+                        row.className = 'row';
+
+                        const label = document.createElement('label');
+                        label.htmlFor = 'field2' + i;
+                        label.textContent = 'Valore induttanza ' + i;
+
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = 'field2' + i; //id per accede dalla servlet
+                        input.name = 'field2' + i;   // es. field1, field2, ...
+                        input.placeholder = 'Valore in Henry';
+
+                        row.appendChild(label);
+                        row.appendChild(input);
+                        frag.appendChild(row);
+                      }
+
+                      container.appendChild(frag);
+                    });
+                  })();
+                </script>
+
+
+          <script>
+                   (function () {
+                     const select = document.getElementById('count3');
+                     const container = document.getElementById('inputs3');
+
+                     select.addEventListener('change', function () {
+                       const n = parseInt(this.value, 10) || 0;
+
+                       // Svuota e ricrea
+                       container.innerHTML = '';
+                       const frag = document.createDocumentFragment();
+
+                       for (let i = 1; i <= n; i++) {
+                         const row = document.createElement('div');
+                         row.className = 'row';
+
+                         const label = document.createElement('label');
+                         label.htmlFor = 'field3' + i;
+                         label.textContent = 'Valore del condensatore ' + i;
+
+                         const input = document.createElement('input');
+                         input.type = 'text';
+                         input.id = 'field3' + i; //id per accede dalla servlet
+                         input.name = 'field3' + i;   // es. field1, field2, ...
+                         input.placeholder = 'Valore in Farad';
+
+                         row.appendChild(label);
+                         row.appendChild(input);
+                         frag.appendChild(row);
+                       }
+
+                       container.appendChild(frag);
+                     });
+                   })();
+                 </script>
 
 
 

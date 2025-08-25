@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @WebServlet("/ImageUploadServlet")
@@ -38,6 +40,26 @@ public class ImageUploadServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String methodStr = req.getParameter("method");
+        int numero_resistenze = Integer.parseInt(req.getParameter("count"));
+        int numero_induttanze = Integer.parseInt(req.getParameter("count2"));
+        int numero_condensatori = Integer.parseInt(req.getParameter("count3"));
+
+        List<String> valori_resistenze = new ArrayList<>();
+        List<String> valori_induttanze = new ArrayList<>();
+        List<String> valori_condensatori = new ArrayList<>();
+        for(int i=0;i<numero_resistenze;i++)
+        {
+            valori_resistenze.add(i, req.getParameter("field"+(i+1)));
+        }
+        for(int i=0;i<numero_induttanze;i++)
+        {
+            valori_induttanze.add(i, req.getParameter("field2"+(i+1)));
+        }
+        for(int i=0;i<numero_condensatori;i++)
+        {
+            valori_condensatori.add(i, req.getParameter("field3"+(i+1)));
+        }
+
 
 
 
@@ -62,8 +84,20 @@ public class ImageUploadServlet extends HttpServlet {
             req.setAttribute("debugFileName", debugName);
         }
         System.out.println(
-                  " | " + method.name() + " | "
+                  " | " + method.name() + " | " + numero_resistenze
         );
+        for(int i=0;i<numero_resistenze;i++)
+        {
+            System.out.println(valori_resistenze.get(i));
+        }
+        for(int i=0;i<numero_induttanze;i++)
+        {
+            System.out.println(valori_induttanze.get(i));
+        }
+        for(int i=0;i<numero_condensatori;i++)
+        {
+            System.out.println(valori_condensatori.get(i));
+        }
         RequestDispatcher dispatcher = req.getRequestDispatcher("result.jsp");
         dispatcher.forward(req, resp);
     }
