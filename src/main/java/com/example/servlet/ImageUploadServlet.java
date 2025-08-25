@@ -51,6 +51,7 @@ public class ImageUploadServlet extends HttpServlet {
         List<String> valori_generatori_corrente = new ArrayList<>();
         List<String> valori_generatori_tensione = new ArrayList<>();
         List<String> correnti_di_maglia = new ArrayList<>();
+        List<String> direzioni_correnti_maglia = new ArrayList<>();
         for(int i=0;i<numero_resistenze;i++)
         {
             valori_resistenze.add(i, req.getParameter("field"+(i+1)));
@@ -74,6 +75,10 @@ public class ImageUploadServlet extends HttpServlet {
         for(int i=0;i<numero_correnti_maglia;i++)
         {
             correnti_di_maglia.add(i, req.getParameter("meshNames"+(i+1)));
+        }
+        for(int i=0;i<numero_correnti_maglia;i++)
+        {
+            direzioni_correnti_maglia.add(i, req.getParameter("meshDir"+(i+1)));
         }
 
 
@@ -125,6 +130,7 @@ public class ImageUploadServlet extends HttpServlet {
         for(int i=0;i<numero_correnti_maglia;i++)
         {
             System.out.println("Correnti di maglia"+correnti_di_maglia.get(i));
+            System.out.println("Direzioni: "+ direzioni_correnti_maglia.get(i));
         }
 
 

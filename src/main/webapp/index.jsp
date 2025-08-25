@@ -130,8 +130,11 @@
       function renderMeshNames(n) {
         meshNames.innerHTML = '';
         n = Math.min(Math.max(parseInt(n || '0', 10), 0), 50);
+
         for (let i = 1; i <= n; i++) {
           const wrap = document.createElement('div');
+
+          // Nome corrente
           const label = document.createElement('label');
           label.setAttribute('for', 'meshName' + i);
           label.textContent = 'Nome corrente ' + i;
@@ -139,11 +142,52 @@
           const input = document.createElement('input');
           input.type = 'text';
           input.id = 'meshName' + i;
-          input.name = 'meshNames' + i; // stesso name -> getParameterValues("meshNames")
+          input.name = 'meshNames' + i;  // <--- lasciato come nel tuo codice attuale
           input.placeholder = 'I' + i;
+
+          // Direzione (Orario / Antiorario)
+          const dirWrap = document.createElement('div');
+          dirWrap.style.display = 'flex';
+          dirWrap.style.gap = '1rem';
+          dirWrap.style.alignItems = 'center';
+          dirWrap.style.marginTop = '.25rem';
+
+          const cwId = 'meshDir' + i + 'CW';
+          const ccwId = 'meshDir' + i + 'CCW';
+
+          const cw = document.createElement('input');
+          cw.type = 'checkbox';
+          cw.id = cwId;
+          cw.name = 'meshDir' + i; // UN solo parametro lato server: "CW" o "CCW"
+          cw.value = 'CW';
+
+          const cwLbl = document.createElement('label');
+          cwLbl.setAttribute('for', cwId);
+          cwLbl.textContent = 'Orario';
+
+          const ccw = document.createElement('input');
+          ccw.type = 'checkbox';
+          ccw.id = ccwId;
+          ccw.name = 'meshDir' + i; // stesso name della coppia
+          ccw.value = 'CCW';
+
+          const ccwLbl = document.createElement('label');
+          ccwLbl.setAttribute('for', ccwId);
+          ccwLbl.textContent = 'Antiorario';
+
+          // Mutua esclusione
+          cw.addEventListener('change', () => { if (cw.checked) ccw.checked = false; });
+          ccw.addEventListener('change', () => { if (ccw.checked) cw.checked = false; });
+
+          dirWrap.appendChild(cw);
+          dirWrap.appendChild(cwLbl);
+          dirWrap.appendChild(ccw);
+          dirWrap.appendChild(ccwLbl);
 
           wrap.appendChild(label);
           wrap.appendChild(input);
+          wrap.appendChild(dirWrap);
+
           meshNames.appendChild(wrap);
         }
       }
@@ -160,6 +204,7 @@
       meshCount.addEventListener('input', () => renderMeshNames(meshCount.value));
     })();
   </script>
+
 
   <!-- RESISTENZE -->
   <script>
