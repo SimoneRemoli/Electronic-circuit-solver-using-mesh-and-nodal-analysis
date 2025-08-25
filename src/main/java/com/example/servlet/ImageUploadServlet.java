@@ -42,7 +42,7 @@ public class ImageUploadServlet extends HttpServlet {
         int numero_condensatori = Integer.parseInt(req.getParameter("count3"));
         int numero_gen_corrente = Integer.parseInt(req.getParameter("count4"));
         int numero_gen_tensione = Integer.parseInt(req.getParameter("count5"));
-        int numero_correnti_maglia = Integer.parseInt(req.getParameter("meshCount"));
+        int numero_correnti_maglia = Integer.parseInt(req.getParameter("meshCount")); //null se check nodi
 
 
         List<String> valori_resistenze = new ArrayList<>();
@@ -99,6 +99,15 @@ public class ImageUploadServlet extends HttpServlet {
 
 
         req.setAttribute("method", method.name());
+        req.setAttribute("valori_resistenze", valori_resistenze);
+        req.setAttribute("valori_induttanze", valori_induttanze);
+        req.setAttribute("valori_condensatori", valori_condensatori);
+        req.setAttribute("valori_generatori_corrente", valori_generatori_corrente);
+        req.setAttribute("valori_generatori_tensione", valori_generatori_tensione);
+        req.setAttribute("correnti_di_maglia", correnti_di_maglia);
+        req.setAttribute("direzioni_correnti_maglia", direzioni_correnti_maglia);
+
+
         // prendi il nome del PNG di debug salvato dal parser
         String debugName = System.getProperty("last.debug.filename");
         if (debugName != null) {
@@ -134,26 +143,9 @@ public class ImageUploadServlet extends HttpServlet {
         }
 
 
-        if(methodStr.equals("Metodo delle maglie"))
-        {
-            for(int i=0;i<numero_correnti_maglia;i++)
-            {
-                System.out.println("Correnti di maglia"+correnti_di_maglia.get(i));
-            }
-        }
-        if(methodStr.equals("Metodo dei nodi"))
-        {
-
-        }
 
 
-
-
-
-
-
-
-        RequestDispatcher dispatcher = req.getRequestDispatcher("result.jsp");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("/result.jsp");
         dispatcher.forward(req, resp);
     }
 }

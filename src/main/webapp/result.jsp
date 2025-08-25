@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -20,34 +22,119 @@
   <p>
   <%
               String metodo = (String) request.getAttribute("method");
-              String notes = (String) request.getAttribute("notes");
+              List<String> valori_resistenze = (List<String>) request.getAttribute("valori_resistenze");
+              List<String> valori_induttanze = (List<String>) request.getAttribute("valori_induttanze");
+              List<String> valori_condensatori = (List<String>) request.getAttribute("valori_condensatori");
+              List<String> valori_generatori_corrente = (List<String>) request.getAttribute("valori_generatori_corrente");
+              List<String> valori_generatori_tensione = (List<String>) request.getAttribute("valori_generatori_tensione");
+              List<String> correnti_di_maglia = (List<String>) request.getAttribute("correnti_di_maglia");
+              List<String> direzioni_correnti_maglia = (List<String>) request.getAttribute("direzioni_correnti_maglia");
 
   out.println("<span class='tag'>Metodo: "+metodo+"</span>");
   %>
-  <%
-        if (notes == null || notes.trim().isEmpty())
-        {
-            out.println("<span class='tag'>Note: Nessuna nota </span>");
-        }
-        else
-             out.println("<span class='tag'>Note: "+notes+"</span>");
-  %>
+
   </p>
 
   <div class="grid">
     <div>
       <h3>Analisi soluzione</h3>
 
-    </div>
+      <%
+        out.print("<style>");
+        out.print("table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; }");
+        out.print("th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }");
+        out.print("th { background-color: #0078d7; color: white; font-weight: bold; }");
+        out.print("tr:nth-child(even) { background-color: #f9f9f9; }");
+        out.print("tr:hover { background-color: #f1f1f1; }");
+        out.print("</style>");
 
-    <div>
-      <h3>Sistema di equazioni generato</h3>
-      <pre>
-<c:forEach var="eq" items="${equations}">${eq}
-</c:forEach>
-      </pre>
+        out.print("<table>");
+        out.print("<tr><th>Information</th><th>Details</th></tr>");
+        // aggiungo qui le mie righe
+        out.print("<tr>");
+        out.print("<td>Valori Resistenze </td>");
+        out.print("<td>");
+
+        if(valori_resistenze.isEmpty())
+        {
+            out.print(" Nessuna resistenza inserita.");
+        }
+        else
+        {
+            for(int i=0;i<valori_resistenze.size();i++)
+            {
+                            String res = valori_resistenze.get(i);
+                            out.print("<span style='color: black; font-weight: bold;'>");
+                            out.print("<ul>");
+                            out.print("<li>");
+                            out.print(" " + res + " ");
+                            out.print("</li>");
+                            out.print("</ul>");
+                            out.print("</span>");
+            }
+        }
+                   out.print("</td>");
+                   out.print("</tr>");
+
+                   out.print("<tr>");
+                           out.print("<td>Valori Induttanze </td>");
+                           out.print("<td>");
+
+                           if(valori_induttanze.isEmpty())
+                           {
+                               out.print(" Nessuna Induttanza inserita.");
+                           }
+                           else
+                           {
+                               for(int i=0;i<valori_induttanze.size();i++)
+                               {
+                                               String ind = valori_induttanze.get(i);
+                                               out.print("<span style='color: black; font-weight: bold;'>");
+                                               out.print("<ul>");
+                                               out.print("<li>");
+                                               out.print(" " + ind + " ");
+                                               out.print("</li>");
+                                               out.print("</ul>");
+                                               out.print("</span>");
+                               }
+                           }
+                                      out.print("</td>");
+                                      out.print("</tr>");
+
+
+                                      out.print("<tr>");
+                                              out.print("<td>Valori Condensatori </td>");
+                                              out.print("<td>");
+
+                                              if(valori_condensatori.isEmpty())
+                                              {
+                                                  out.print(" Nessun condensatore inserita.");
+                                              }
+                                              else
+                                              {
+                                                  for(int i=0;i<valori_condensatori.size();i++)
+                                                  {
+                                                                  String con = valori_condensatori.get(i);
+                                                                  out.print("<span style='color: black; font-weight: bold;'>");
+                                                                  out.print("<ul>");
+                                                                  out.print("<li>");
+                                                                  out.print(" " + con + " ");
+                                                                  out.print("</li>");
+                                                                  out.print("</ul>");
+                                                                  out.print("</span>");
+                                                  }
+                                              }
+                                                         out.print("</td>");
+                                                         out.print("</tr>");
+
+        out.print("</table>");
+      %>
+
     </div>
   </div>
+
+
+
 
   <p style="margin-top:2rem"><a href="<%= request.getContextPath() %>/index.jsp">↩︎ Torna al caricamento</a></p>
 </div>
