@@ -18,6 +18,8 @@ import java.util.Objects;
 public class ImageUploadServlet extends HttpServlet {
 
     private Path uploadDir;
+    static int numero_correnti_maglia;
+    static int numero_resistenze;
 
     @Override
     public void init() throws ServletException {
@@ -37,12 +39,12 @@ public class ImageUploadServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String methodStr = req.getParameter("method");
-        int numero_resistenze = Integer.parseInt(req.getParameter("count"));
+        numero_resistenze = Integer.parseInt(req.getParameter("count"));
         int numero_induttanze = Integer.parseInt(req.getParameter("count2"));
         int numero_condensatori = Integer.parseInt(req.getParameter("count3"));
         int numero_gen_corrente = Integer.parseInt(req.getParameter("count4"));
         int numero_gen_tensione = Integer.parseInt(req.getParameter("count5"));
-        int numero_correnti_maglia = Integer.parseInt(req.getParameter("meshCount")); //null se check nodi
+        numero_correnti_maglia = Integer.parseInt(req.getParameter("meshCount")); //null se check nodi
 
 
         List<String> valori_resistenze = new ArrayList<>();
@@ -106,6 +108,7 @@ public class ImageUploadServlet extends HttpServlet {
         req.setAttribute("valori_generatori_tensione", valori_generatori_tensione);
         req.setAttribute("correnti_di_maglia", correnti_di_maglia);
         req.setAttribute("direzioni_correnti_maglia", direzioni_correnti_maglia);
+
 
 
         // prendi il nome del PNG di debug salvato dal parser
