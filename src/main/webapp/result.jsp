@@ -183,6 +183,59 @@
                                                                                                                                                                                                                                     out.print("</td>");
                                                                                                                                                                                                                                     out.print("</tr>");
 
+     out.print("<tr>");
+                                                                                                       out.print("<td>Valori Generatori di corrente </td>");
+                                                                                                       out.print("<td>");
+
+                                                                                                       if(valori_generatori_corrente.isEmpty())
+                                                                                                       {
+                                                                                                           out.print(" Nessun generatore di corrente inserito.");
+                                                                                                       }
+                                                                                                       else
+                                                                                                       {
+                                                                                                           for(int i=0;i<valori_generatori_corrente.size();i++)
+                                                                                                           {
+                                                                                                                           String con = valori_generatori_corrente.get(i);
+                                                                                                                           out.print("<span style='color: black; font-weight: bold;'>");
+                                                                                                                           out.print("<ul>");
+                                                                                                                           out.print("<li>");
+                                                                                                                           out.print(" " + con + " ");
+                                                                                                                           out.print("</li>");
+                                                                                                                           out.print("</ul>");
+                                                                                                                           out.print("</span>");
+                                                                                                           }
+                                                                                                       }
+                                                                                                                  out.print("</td>");
+                                                                                                                  out.print("</tr>");
+
+                                                                                                                                                                          out.print("<tr>");
+                                                                                                                                                                                                                         out.print("<td>Correnti di maglia e direzioni </td>");
+                                                                                                                                                                                                                         out.print("<td>");
+
+                                                                                                                                                                                                                         if(correnti_di_maglia.isEmpty())
+                                                                                                                                                                                                                         {
+                                                                                                                                                                                                                             out.print(" No correnti di maglia presenti.");
+                                                                                                                                                                                                                         }
+                                                                                                                                                                                                                         else
+                                                                                                                                                                                                                         {
+                                                                                                                                                                                                                             for(int i=0;i<correnti_di_maglia.size();i++)
+                                                                                                                                                                                                                             {
+                                                                                                                                                                                                                                             String con = correnti_di_maglia.get(i);
+                                                                                                                                                                                                                                             String con1 = direzioni_correnti_maglia.get(i);
+                                                                                                                                                                                                                                             out.print("<span style='color: black; font-weight: bold;'>");
+                                                                                                                                                                                                                                             out.print("<ul>");
+                                                                                                                                                                                                                                             out.print("<li>");
+                                                                                                                                                                                                                                             out.print(" " + con + " direzione: "+con1);
+                                                                                                                                                                                                                                             out.print("</li>");
+                                                                                                                                                                                                                                             out.print("</ul>");
+                                                                                                                                                                                                                                             out.print("</span>");
+                                                                                                                                                                                                                             }
+                                                                                                                                                                                                                         }
+                                                                                                                                                                                                                                    out.print("</td>");
+                                                                                                                                                                                                                                    out.print("</tr>");
+
+
+
 
 
 
@@ -191,6 +244,120 @@
 
     </div>
   </div>
+
+ <hr>
+ <h2>Associazione componenti alle correnti di maglia</h2>
+ <p class="muted">Per ogni corrente di maglia, seleziona i componenti attraversati.</p>
+
+ <form action="AssociaComponentiServlet" method="post">
+   <%
+     // stampiamo dinamicamente una sezione per ogni maglia
+     for (int i = 0; i < correnti_di_maglia.size(); i++) {
+         String nomeMaglia = correnti_di_maglia.get(i);
+         String direzione = direzioni_correnti_maglia.get(i);
+   %>
+     <fieldset style="margin:1rem 0; padding:1rem; border:1px solid #ccc; border-radius:8px;">
+       <legend><strong><%= nomeMaglia %></strong> (direzione: <%= direzione %>)</legend>
+
+       <!-- Resistenze -->
+       <label>Resistenze</label><br>
+       <%
+         if (valori_resistenze.isEmpty()) {
+       %>
+         <em>Nessuna resistenza disponibile</em><br>
+       <%
+         } else {
+           for (int r = 0; r < valori_resistenze.size(); r++) {
+       %>
+         <input type="checkbox" name="mesh<%=i%>_R" value="R<%=r+1%>" id="mesh<%=i%>_R<%=r%>">
+         <label for="mesh<%=i%>_R<%=r%>"><%= valori_resistenze.get(r) %> (R<%=r+1%>)</label><br>
+       <%
+           }
+         }
+       %>
+       <br>
+
+       <!-- Induttanze -->
+       <label>Induttanze</label><br>
+       <%
+         if (valori_induttanze.isEmpty()) {
+       %>
+         <em>Nessuna induttanza disponibile</em><br>
+       <%
+         } else {
+           for (int l = 0; l < valori_induttanze.size(); l++) {
+       %>
+         <input type="checkbox" name="mesh<%=i%>_L" value="L<%=l+1%>" id="mesh<%=i%>_L<%=l%>">
+         <label for="mesh<%=i%>_L<%=l%>"><%= valori_induttanze.get(l) %> (L<%=l+1%>)</label><br>
+       <%
+           }
+         }
+       %>
+       <br>
+
+       <!-- Condensatori -->
+       <label>Condensatori</label><br>
+       <%
+         if (valori_condensatori.isEmpty()) {
+       %>
+         <em>Nessun condensatore disponibile</em><br>
+       <%
+         } else {
+           for (int c = 0; c < valori_condensatori.size(); c++) {
+       %>
+         <input type="checkbox" name="mesh<%=i%>_C" value="C<%=c+1%>" id="mesh<%=i%>_C<%=c%>">
+         <label for="mesh<%=i%>_C<%=c%>"><%= valori_condensatori.get(c) %> (C<%=c+1%>)</label><br>
+       <%
+           }
+         }
+       %>
+       <br>
+
+       <!-- Generatori di corrente -->
+       <label>Generatori di corrente</label><br>
+       <%
+         if (valori_generatori_corrente.isEmpty()) {
+       %>
+         <em>Nessun generatore di corrente disponibile</em><br>
+       <%
+         } else {
+           for (int g = 0; g < valori_generatori_corrente.size(); g++) {
+       %>
+         <input type="checkbox" name="mesh<%=i%>_I" value="I<%=g+1%>" id="mesh<%=i%>_I<%=g%>">
+         <label for="mesh<%=i%>_I<%=g%>"><%= valori_generatori_corrente.get(g) %> (I<%=g+1%>)</label><br>
+       <%
+           }
+         }
+       %>
+       <br>
+
+       <!-- Generatori di tensione -->
+       <label>Generatori di tensione</label><br>
+       <%
+         if (valori_generatori_tensione.isEmpty()) {
+       %>
+         <em>Nessun generatore di tensione disponibile</em><br>
+       <%
+         } else {
+           for (int v = 0; v < valori_generatori_tensione.size(); v++) {
+       %>
+         <input type="checkbox" name="mesh<%=i%>_V" value="V<%=v+1%>" id="mesh<%=i%>_V<%=v%>">
+         <label for="mesh<%=i%>_V<%=v%>"><%= valori_generatori_tensione.get(v) %> (V<%=v+1%>)</label><br>
+       <%
+           }
+         }
+       %>
+     </fieldset>
+   <%
+     }
+   %>
+
+   <div style="margin-top:1rem;">
+     <button type="submit">Conferma associazioni</button>
+   </div>
+ </form>
+
+
 
 
 
