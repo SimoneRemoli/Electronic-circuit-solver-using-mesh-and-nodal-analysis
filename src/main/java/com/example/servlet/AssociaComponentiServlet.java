@@ -9,68 +9,95 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 @WebServlet("/AssociaComponentiServlet")
 
 public class AssociaComponentiServlet extends HttpServlet {
+
+    int num =  ImageUploadServlet.numero_correnti_maglia;
+    String[][] m = new String[num][100];
+    int j = 0;
+    List<String> direzioni_correnti_maglia = ImageUploadServlet.direzioni_correnti_maglia;
+
+
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-       int num =  ImageUploadServlet.numero_correnti_maglia;
-       int numero_res = ImageUploadServlet.numero_resistenze;
-       System.out.println(num);
+
+
+        System.out.println(num);
 
 
         for (int i = 0; i < num; i++) {
-            String[] selectedR = req.getParameterValues("mesh" + i + "_R"); // es. ["R1","R3"]
+            j = 0;
+            String[] selectedR = req.getParameterValues("mesh" + i + "_R");
             String[] selectedL = req.getParameterValues("mesh" + i + "_L");
             String[] selectedC = req.getParameterValues("mesh" + i + "_C");
             String[] selectedI = req.getParameterValues("mesh" + i + "_I");
             String[] selectedV = req.getParameterValues("mesh" + i + "_V");
 
+
+
             if (selectedR != null) {
                 for (String code : selectedR) {
                     System.out.println("Maglia " + i + " componente " + code);
+                    m[i][j] = code; j = j + 1;
                 }
-            } else {
-                System.out.println("Maglia " + i + " nessuna resistenza selezionata");
             }
 
             if (selectedL != null) {
                 for (String code : selectedL) {
                     System.out.println("Maglia " + i + " componente " + code);
+                    m[i][j] = code; j = j + 1;
                 }
-            } else {
-                System.out.println("Maglia " + i + " nessuna induttanza selezionata");
             }
 
             if (selectedC != null) {
                 for (String code : selectedC) {
                     System.out.println("Maglia " + i + " componente " + code);
+                    m[i][j] = code; j = j + 1;
                 }
-            } else {
-                System.out.println("Maglia " + i + " nessun condensatore selezionato");
             }
 
             if (selectedI != null) {
                 for (String code : selectedI) {
                     System.out.println("Maglia " + i + " componente " + code);
+                    m[i][j] = code; j = j + 1;
                 }
-            } else {
-                System.out.println("Maglia " + i + " nessun generatore di corrente selezionato");
             }
 
             if (selectedV != null) {
                 for (String code : selectedV) {
                     System.out.println("Maglia " + i + " componente " + code);
+                    m[i][j] = code; j = j + 1;
                 }
-            } else {
-                System.out.println("Maglia " + i + " nessun generatore di tensione selezionato");
             }
         }
+
+        for (int i = 0; i < m.length; i++) {
+            System.out.printf("%02d | ", i); // indice riga
+            for (int j = 0; j < m[i].length; j++) {
+                String cell = java.util.Objects.toString(m[i][j], ""); // null -> ""
+                System.out.print(cell);
+                if (j < m[i].length - 1) System.out.print("\t");       // separatore
+            }
+            System.out.println();
+        }
+
+        for(int i=0;i<num;i++)
+        {
+            System.out.println(direzioni_correnti_maglia.get(i));//CCW antiorario
+        }
+
+
+        //ora da qui genero il sistema
+        System.out.println();
+
 
 
 
