@@ -21,6 +21,7 @@ public class ImageUploadServlet extends HttpServlet {
     static int numero_correnti_maglia;
     static int numero_resistenze;
     static  List<String> direzioni_correnti_maglia = new ArrayList<>();
+    static  List<String> correnti_di_maglia = new ArrayList<>();
 
     @Override
     public void init() throws ServletException {
@@ -53,7 +54,7 @@ public class ImageUploadServlet extends HttpServlet {
         List<String> valori_condensatori = new ArrayList<>();
         List<String> valori_generatori_corrente = new ArrayList<>();
         List<String> valori_generatori_tensione = new ArrayList<>();
-        List<String> correnti_di_maglia = new ArrayList<>();
+        //List<String> correnti_di_maglia = new ArrayList<>();
         //List<String> direzioni_correnti_maglia = new ArrayList<>();
         for(int i=0;i<numero_resistenze;i++)
         {
