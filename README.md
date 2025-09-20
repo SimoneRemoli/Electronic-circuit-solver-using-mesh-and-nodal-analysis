@@ -11,3 +11,5 @@ Português (PT/BR): O software está atualmente em desenvolvimento. Não está o
 Nederlands: De software is momenteel in ontwikkeling. Het is niet geordend en behoorlijk chaotisch.
 
 Italiano: Il software è attualmente in fase di sviluppo. Non è ordinato ed è piuttosto caotico.
+
+Aggiornamento: Il software sta prendendo forma (20 settembre 2025)
