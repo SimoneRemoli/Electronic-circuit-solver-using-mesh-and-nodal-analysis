@@ -127,6 +127,65 @@
                                                          out.print("</td>");
                                                          out.print("</tr>");
 
+
+
+
+
+
+
+                                                         out.print("<tr>");
+                                                                                                       out.print("<td>Valori Generatori di corrente </td>");
+                                                                                                       out.print("<td>");
+
+                                                                                                       if(valori_generatori_corrente.isEmpty())
+                                                                                                       {
+                                                                                                           out.print(" Nessun generatore di corrente inserito.");
+                                                                                                       }
+                                                                                                       else
+                                                                                                       {
+                                                                                                           for(int i=0;i<valori_generatori_corrente.size();i++)
+                                                                                                           {
+                                                                                                                           String con = valori_generatori_corrente.get(i);
+                                                                                                                           out.print("<span style='color: black; font-weight: bold;'>");
+                                                                                                                           out.print("<ul>");
+                                                                                                                           out.print("<li>");
+                                                                                                                           out.print(" " + con + " ");
+                                                                                                                           out.print("</li>");
+                                                                                                                           out.print("</ul>");
+                                                                                                                           out.print("</span>");
+                                                                                                           }
+                                                                                                       }
+                                                                                                                  out.print("</td>");
+                                                                                                                  out.print("</tr>");
+
+                                                                                                                                                                          out.print("<tr>");
+                                                                                                                                                                                                                         out.print("<td>Valori Generatori di tensione </td>");
+                                                                                                                                                                                                                         out.print("<td>");
+
+                                                                                                                                                                                                                         if(valori_generatori_tensione.isEmpty())
+                                                                                                                                                                                                                         {
+                                                                                                                                                                                                                             out.print(" Nessun generatore di tensione inserito.");
+                                                                                                                                                                                                                         }
+                                                                                                                                                                                                                         else
+                                                                                                                                                                                                                         {
+                                                                                                                                                                                                                             for(int i=0;i<valori_generatori_tensione.size();i++)
+                                                                                                                                                                                                                             {
+                                                                                                                                                                                                                                             String con = valori_generatori_tensione.get(i);
+                                                                                                                                                                                                                                             out.print("<span style='color: black; font-weight: bold;'>");
+                                                                                                                                                                                                                                             out.print("<ul>");
+                                                                                                                                                                                                                                             out.print("<li>");
+                                                                                                                                                                                                                                             out.print(" " + con + " ");
+                                                                                                                                                                                                                                             out.print("</li>");
+                                                                                                                                                                                                                                             out.print("</ul>");
+                                                                                                                                                                                                                                             out.print("</span>");
+                                                                                                                                                                                                                             }
+                                                                                                                                                                                                                         }
+                                                                                                                                                                                                                                    out.print("</td>");
+                                                                                                                                                                                                                                    out.print("</tr>");
+
+
+
+
         out.print("</table>");
       %>
 
