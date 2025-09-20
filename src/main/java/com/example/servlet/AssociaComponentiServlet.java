@@ -25,6 +25,9 @@ public class AssociaComponentiServlet extends HttpServlet {
 
 
 
+
+
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -97,13 +100,21 @@ public class AssociaComponentiServlet extends HttpServlet {
 
 
         //ora da qui genero il sistema
+        for (int i = 0; i < num; i++) {
+            java.util.Arrays.fill(equazioni[i], ""); // ok: String è immutabile
+        }
+
+
+
+
         System.out.println();
         String equazione = null;
         j = 0;
+        boolean check = false;
 
         for (int i = 0; i < m.length; i++) {
-            j=0;
-            System.out.printf("%02d | ", i); // indice riga
+
+
             for (int j = 0; j < m[i].length; j++) {
                 String cell = java.util.Objects.toString(m[i][j], ""); // null -> ""
                 if(cell.startsWith("L"))
@@ -118,8 +129,23 @@ public class AssociaComponentiServlet extends HttpServlet {
                 {
                     equazioni[i][j] += " 1/(j w "+cell+ " ) +";
                 }
+
             }
             System.out.println();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
 
@@ -134,7 +160,7 @@ public class AssociaComponentiServlet extends HttpServlet {
             for (int j = 0; j < equazioni[i].length; j++) {
                 String cell = java.util.Objects.toString(equazioni[i][j], ""); // null -> ""
                 System.out.print(cell);
-                if (j < m[i].length - 1) System.out.print("\t");       // separatore
+                if (j < equazioni[i].length - 1) System.out.print("\t");       // separatore
             }
             System.out.println();
         }
