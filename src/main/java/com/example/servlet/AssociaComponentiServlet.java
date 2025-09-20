@@ -21,6 +21,7 @@ public class AssociaComponentiServlet extends HttpServlet {
     String[][] m = new String[num][100];
     int j = 0;
     List<String> direzioni_correnti_maglia = ImageUploadServlet.direzioni_correnti_maglia;
+    String[][] equazioni = new String[num][100];
 
 
 
@@ -97,7 +98,46 @@ public class AssociaComponentiServlet extends HttpServlet {
 
         //ora da qui genero il sistema
         System.out.println();
+        String equazione = null;
+        j = 0;
 
+        for (int i = 0; i < m.length; i++) {
+            j=0;
+            System.out.printf("%02d | ", i); // indice riga
+            for (int j = 0; j < m[i].length; j++) {
+                String cell = java.util.Objects.toString(m[i][j], ""); // null -> ""
+                if(cell.startsWith("L"))
+                {
+                    equazioni[i][j] += " j w "+cell+ " +";
+                }
+                if(cell.startsWith("R"))
+                {
+                    equazioni[i][j] += " "+cell+ " +";
+                }
+                if(cell.startsWith("C"))
+                {
+                    equazioni[i][j] += " 1/(j w "+cell+ " ) +";
+                }
+            }
+            System.out.println();
+        }
+
+
+
+
+
+
+
+
+
+        for (int i = 0; i < equazioni.length; i++) {
+            for (int j = 0; j < equazioni[i].length; j++) {
+                String cell = java.util.Objects.toString(equazioni[i][j], ""); // null -> ""
+                System.out.print(cell);
+                if (j < m[i].length - 1) System.out.print("\t");       // separatore
+            }
+            System.out.println();
+        }
 
 
 
