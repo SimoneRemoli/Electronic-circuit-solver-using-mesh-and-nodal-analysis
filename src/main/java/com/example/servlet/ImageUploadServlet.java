@@ -49,33 +49,10 @@ public class ImageUploadServlet extends HttpServlet {
         numero_correnti_maglia = Integer.parseInt(req.getParameter("meshCount")); //null se check nodi
 
 
-        List<String> valori_resistenze = new ArrayList<>();
-        List<String> valori_induttanze = new ArrayList<>();
-        List<String> valori_condensatori = new ArrayList<>();
-        List<String> valori_generatori_corrente = new ArrayList<>();
-        List<String> valori_generatori_tensione = new ArrayList<>();
+
         //List<String> correnti_di_maglia = new ArrayList<>();
         //List<String> direzioni_correnti_maglia = new ArrayList<>();
-        for(int i=0;i<numero_resistenze;i++)
-        {
-            valori_resistenze.add(i, req.getParameter("field"+(i+1)));
-        }
-        for(int i=0;i<numero_induttanze;i++)
-        {
-            valori_induttanze.add(i, req.getParameter("field2"+(i+1)));
-        }
-        for(int i=0;i<numero_condensatori;i++)
-        {
-            valori_condensatori.add(i, req.getParameter("field3"+(i+1)));
-        }
-        for(int i=0;i<numero_gen_corrente;i++)
-        {
-            valori_generatori_corrente.add(i, req.getParameter("field4"+(i+1)));
-        }
-        for(int i=0;i<numero_gen_tensione;i++)
-        {
-            valori_generatori_tensione.add(i, req.getParameter("field5"+(i+1)));
-        }
+
         for(int i=0;i<numero_correnti_maglia;i++)
         {
             correnti_di_maglia.add(i, req.getParameter("meshNames"+(i+1)));
@@ -103,11 +80,11 @@ public class ImageUploadServlet extends HttpServlet {
 
 
         req.setAttribute("method", method.name());
-        req.setAttribute("valori_resistenze", valori_resistenze);
-        req.setAttribute("valori_induttanze", valori_induttanze);
-        req.setAttribute("valori_condensatori", valori_condensatori);
-        req.setAttribute("valori_generatori_corrente", valori_generatori_corrente);
-        req.setAttribute("valori_generatori_tensione", valori_generatori_tensione);
+        req.setAttribute("valori_resistenze", numero_resistenze);
+        req.setAttribute("valori_induttanze", numero_induttanze);
+        req.setAttribute("valori_condensatori", numero_condensatori);
+        req.setAttribute("valori_generatori_corrente", numero_gen_corrente);
+        req.setAttribute("valori_generatori_tensione", numero_gen_tensione);
         req.setAttribute("correnti_di_maglia", correnti_di_maglia);
         req.setAttribute("direzioni_correnti_maglia", direzioni_correnti_maglia);
 
@@ -121,33 +98,11 @@ public class ImageUploadServlet extends HttpServlet {
         System.out.println(
                   " | " + method.name() + " | " + numero_resistenze
         );
-        for(int i=0;i<numero_resistenze;i++)
-        {
-            System.out.println(valori_resistenze.get(i));
-        }
-        for(int i=0;i<numero_induttanze;i++)
-        {
-            System.out.println(valori_induttanze.get(i));
-        }
-        for(int i=0;i<numero_condensatori;i++)
-        {
-            System.out.println(valori_condensatori.get(i));
-        }
-        for(int i=0;i<numero_gen_corrente;i++)
-        {
-            System.out.println(valori_generatori_corrente.get(i));
-        }
-        for(int i=0;i<numero_gen_tensione;i++)
-        {
-            System.out.println(valori_generatori_tensione.get(i));
-        }
         for(int i=0;i<numero_correnti_maglia;i++)
         {
             System.out.println("Correnti di maglia"+correnti_di_maglia.get(i));
             System.out.println("Direzioni: "+ direzioni_correnti_maglia.get(i));
         }
-
-
 
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("/result.jsp");
