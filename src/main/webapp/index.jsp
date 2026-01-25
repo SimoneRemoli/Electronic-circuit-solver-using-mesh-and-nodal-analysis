@@ -50,8 +50,8 @@
       <h2>Resistenze</h2>
       <div class="row">
         <label for="count">Quante resistenze?</label>
-        <select id="count" name="count" required>
-          <option value="" selected disabled>Seleziona…</option>
+        <select id="count" name="count">
+          <option value="0" selected>0</option>
           <% for (int i = 1; i <= 50; i++) { %>
             <option value="<%= i %>"><%= i %></option>
           <% } %>
@@ -63,8 +63,8 @@
       <h2>Induttanze</h2>
       <div class="row">
         <label for="count2">Quante induttanze?</label>
-        <select id="count2" name="count2" required>
-          <option value="" selected disabled>Seleziona…</option>
+        <select id="count2" name="count2">
+          <option value="0" selected>0</option>
           <% for (int i = 1; i <= 50; i++) { %>
             <option value="<%= i %>"><%= i %></option>
           <% } %>
@@ -76,8 +76,8 @@
       <h2>Condensatori</h2>
       <div class="row">
         <label for="count3">Quanti condensatori?</label>
-        <select id="count3" name="count3" required>
-          <option value="" selected disabled>Seleziona…</option>
+        <select id="count3" name="count3">
+          <option value="0" selected>0</option>
           <% for (int i = 1; i <= 50; i++) { %>
             <option value="<%= i %>"><%= i %></option>
           <% } %>
@@ -89,8 +89,8 @@
       <h2>Generatori di corrente</h2>
       <div class="row">
         <label for="count4">Quanti generatori di corrente?</label>
-        <select id="count4" name="count4" required>
-          <option value="" selected disabled>Seleziona…</option>
+        <select id="count4" name="count4">
+          <option value="0" selected>0</option>
           <% for (int i = 1; i <= 50; i++) { %>
             <option value="<%= i %>"><%= i %></option>
           <% } %>
@@ -102,8 +102,8 @@
       <h2>Generatori di tensione</h2>
       <div class="row">
         <label for="count5">Quanti generatori di tensione?</label>
-        <select id="count5" name="count5" required>
-          <option value="" selected disabled>Seleziona…</option>
+        <select id="count5" name="count5">
+          <option value="0" selected>0</option>
           <% for (int i = 1; i <= 50; i++) { %>
             <option value="<%= i %>"><%= i %></option>
           <% } %>
@@ -205,150 +205,5 @@
     })();
   </script>
 
-
-  <!-- RESISTENZE -->
-  <script>
-    (function () {
-      const select = document.getElementById('count');
-      const container = document.getElementById('inputs');
-      select.addEventListener('change', function () {
-        const n = parseInt(this.value, 10) || 0;
-        container.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        for (let i = 1; i <= n; i++) {
-          const row = document.createElement('div');
-          row.className = 'row';
-          const label = document.createElement('label');
-          label.htmlFor = 'field' + i;
-          label.textContent = 'Valore della resistenza ' + i;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.id = 'field' + i;
-          input.name = 'field' + i; // es. field1, field2, ...
-          input.placeholder = 'Valore in Ohm';
-          row.appendChild(label);
-          row.appendChild(input);
-          frag.appendChild(row);
-        }
-        container.appendChild(frag);
-      });
-    })();
-  </script>
-
-  <!-- INDUTTANZE -->
-  <script>
-    (function () {
-      const select = document.getElementById('count2');
-      const container = document.getElementById('inputs2');
-      select.addEventListener('change', function () {
-        const n = parseInt(this.value, 10) || 0;
-        container.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        for (let i = 1; i <= n; i++) {
-          const row = document.createElement('div');
-          row.className = 'row';
-          const label = document.createElement('label');
-          label.htmlFor = 'field2' + i;
-          label.textContent = 'Valore induttanza ' + i;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.id = 'field2' + i;
-          input.name = 'field2' + i;
-          input.placeholder = 'Valore in Henry';
-          row.appendChild(label);
-          row.appendChild(input);
-          frag.appendChild(row);
-        }
-        container.appendChild(frag);
-      });
-    })();
-  </script>
-
-  <!-- CONDENSATORI -->
-  <script>
-    (function () {
-      const select = document.getElementById('count3');
-      const container = document.getElementById('inputs3');
-      select.addEventListener('change', function () {
-        const n = parseInt(this.value, 10) || 0;
-        container.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        for (let i = 1; i <= n; i++) {
-          const row = document.createElement('div');
-          row.className = 'row';
-          const label = document.createElement('label');
-          label.htmlFor = 'field3' + i;
-          label.textContent = 'Valore del condensatore ' + i;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.id = 'field3' + i;
-          input.name = 'field3' + i;
-          input.placeholder = 'Valore in Farad';
-          row.appendChild(label);
-          row.appendChild(input);
-          frag.appendChild(row);
-        }
-        container.appendChild(frag);
-      });
-    })();
-  </script>
-
-  <!-- GENERATORI DI CORRENTE -->
-  <script>
-    (function () {
-      const select = document.getElementById('count4');
-      const container = document.getElementById('inputs4');
-      select.addEventListener('change', function () {
-        const n = parseInt(this.value, 10) || 0;
-        container.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        for (let i = 1; i <= n; i++) {
-          const row = document.createElement('div');
-          row.className = 'row';
-          const label = document.createElement('label');
-          label.htmlFor = 'field4' + i;
-          label.textContent = 'Valore del generatore di corrente ' + i;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.id = 'field4' + i;
-          input.name = 'field4' + i;
-          input.placeholder = 'Valore (A)';
-          row.appendChild(label);
-          row.appendChild(input);
-          frag.appendChild(row);
-        }
-        container.appendChild(frag);
-      });
-    })();
-  </script>
-
-  <!-- GENERATORI DI TENSIONE -->
-  <script>
-    (function () {
-      const select = document.getElementById('count5');
-      const container = document.getElementById('inputs5');
-      select.addEventListener('change', function () {
-        const n = parseInt(this.value, 10) || 0;
-        container.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        for (let i = 1; i <= n; i++) {
-          const row = document.createElement('div');
-          row.className = 'row';
-          const label = document.createElement('label');
-          label.htmlFor = 'field5' + i;
-          label.textContent = 'Valore del generatore di tensione ' + i;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.id = 'field5' + i;
-          input.name = 'field5' + i;
-          input.placeholder = 'Valore (V)';
-          row.appendChild(label);
-          row.appendChild(input);
-          frag.appendChild(row);
-        }
-        container.appendChild(frag);
-      });
-    })();
-  </script>
-</body>
+ </body>
 </html>
