@@ -66,27 +66,8 @@ Dopo la costruzione simbolica, il progetto consente di inserire valori di compon
 
 - Java Servlet
 - JSP
-- Maven
+- Maven e Tomcat
 - MathJax per il rendering delle formule
-
-## Avvio locale
-
-Compilazione:
-
-```bash
-mvn -q -DskipTests compile
-```
-
-Esecuzione:
-
-- deploy su un container Servlet compatibile, ad esempio Tomcat
-- apertura della pagina iniziale dell'applicazione
-
-## Struttura del progetto
-
-- `src/main/java/com/example/servlet`: servlet e logica applicativa
-- `src/main/webapp`: pagine JSP e interfaccia
-- `docs/images`: immagini usate nel README
 
 ## Visione del progetto
 
