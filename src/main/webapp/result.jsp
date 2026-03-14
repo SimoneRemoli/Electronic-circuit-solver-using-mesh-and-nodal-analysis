@@ -576,6 +576,15 @@
                     <input type="checkbox" name="mesh<%=i%>_V" value="<%=generatorCode%>" id="mesh<%=i%>_V<%=v%>">
                     <label for="mesh<%=i%>_V<%=v%>"><span><%=generatorCode%></span></label>
                   </div>
+                  <% if ("MAGLIE".equals(metodo)) { %>
+                    <div class="direction-select">
+                      <label for="mesh<%=i%>_V_dir_<%=v%>">Verso rispetto a <%= variableName %></label>
+                      <select name="mesh<%=i%>_V_dir_<%=v%>" id="mesh<%=i%>_V_dir_<%=v%>">
+                        <option value="opposto" selected>Corrente verso il + del generatore</option>
+                        <option value="concorde">Corrente verso il - del generatore</option>
+                      </select>
+                    </div>
+                  <% } %>
                   <% if ("NODI".equals(metodo)) { %>
                     <div class="direction-select">
                       <label for="mesh<%=i%>_V_dir_<%=v%>">Segno del + rispetto a <%= variableName %></label>

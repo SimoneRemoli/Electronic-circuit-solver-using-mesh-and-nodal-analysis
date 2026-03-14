@@ -24,6 +24,7 @@ public class AssociaComponentiServlet extends HttpServlet {
         private final List<String> componentSymbols;
         private final List<String> extraUnknowns;
         private final Map<String, Integer> currentSourceOrientationByMesh;
+        private final Map<String, Integer> voltageSourceOrientationByMesh;
 
         private EquationSystem(
                 String latexMatrix,
@@ -32,7 +33,8 @@ public class AssociaComponentiServlet extends HttpServlet {
                 String latexFullSystem,
                 List<String> componentSymbols,
                 List<String> extraUnknowns,
-                Map<String, Integer> currentSourceOrientationByMesh
+                Map<String, Integer> currentSourceOrientationByMesh,
+                Map<String, Integer> voltageSourceOrientationByMesh
         ) {
             this.latexMatrix = latexMatrix;
             this.latexExpandedSystem = latexExpandedSystem;
@@ -41,6 +43,7 @@ public class AssociaComponentiServlet extends HttpServlet {
             this.componentSymbols = componentSymbols;
             this.extraUnknowns = extraUnknowns;
             this.currentSourceOrientationByMesh = currentSourceOrientationByMesh;
+            this.voltageSourceOrientationByMesh = voltageSourceOrientationByMesh;
         }
     }
 
@@ -188,25 +191,49 @@ public class AssociaComponentiServlet extends HttpServlet {
         return labels.getOrDefault(entity + "|" + code, code);
     }
 
+    private static boolean isParallelLabel(String label) {
+        return label != null && label.startsWith("PARALLEL_");
+    }
+
     static Map<String, String> readBranchLabels(HttpServletRequest req, int equationCount) {
         Map<String, String> labels = new LinkedHashMap<>();
-        String rawGroups = req.getParameter("seriesGroupsData");
-        if (rawGroups == null || rawGroups.isBlank()) {
-            return labels;
-        }
-        String[] groups = rawGroups.split("\\|");
-        for (int g = 0; g < groups.length; g++) {
-            String group = groups[g].trim();
-            if (group.isEmpty()) {
-                continue;
+        String rawSeriesGroups = req.getParameter("seriesGroupsData");
+        if (rawSeriesGroups != null && !rawSeriesGroups.isBlank()) {
+            String[] groups = rawSeriesGroups.split("\\|");
+            for (int g = 0; g < groups.length; g++) {
+                String group = groups[g].trim();
+                if (group.isEmpty()) {
+                    continue;
+                }
+                String label = "SERIES_" + (g + 1);
+                String[] codes = group.split(",");
+                for (int i = 0; i < equationCount; i++) {
+                    for (String code : codes) {
+                        String trimmed = code.trim();
+                        if (!trimmed.isEmpty()) {
+                            labels.put(i + "|" + trimmed, label);
+                        }
+                    }
+                }
             }
-            String label = "SERIES_" + (g + 1);
-            String[] codes = group.split(",");
-            for (int i = 0; i < equationCount; i++) {
-                for (String code : codes) {
-                    String trimmed = code.trim();
-                    if (!trimmed.isEmpty()) {
-                        labels.put(i + "|" + trimmed, label);
+        }
+
+        String rawParallelGroups = req.getParameter("parallelGroupsData");
+        if (rawParallelGroups != null && !rawParallelGroups.isBlank()) {
+            String[] groups = rawParallelGroups.split("\\|");
+            for (int g = 0; g < groups.length; g++) {
+                String group = groups[g].trim();
+                if (group.isEmpty()) {
+                    continue;
+                }
+                String label = "PARALLEL_" + (g + 1);
+                String[] codes = group.split(",");
+                for (int i = 0; i < equationCount; i++) {
+                    for (String code : codes) {
+                        String trimmed = code.trim();
+                        if (!trimmed.isEmpty()) {
+                            labels.put(i + "|" + trimmed, label);
+                        }
                     }
                 }
             }
@@ -231,6 +258,13 @@ public class AssociaComponentiServlet extends HttpServlet {
     }
 
     static String branchImpedance(BranchGroup branch) {
+        if (isParallelLabel(branch.label)) {
+            StringBuilder admittanceSum = new StringBuilder();
+            for (String code : branch.passiveComponents) {
+                addTerm(admittanceSum, yTerm(code), 1);
+            }
+            return "1/(" + valueOf(admittanceSum) + ")";
+        }
         StringBuilder sum = new StringBuilder();
         for (String code : branch.passiveComponents) {
             addTerm(sum, zTerm(code), 1);
@@ -239,6 +273,13 @@ public class AssociaComponentiServlet extends HttpServlet {
     }
 
     static String branchAdmittance(BranchGroup branch) {
+        if (isParallelLabel(branch.label)) {
+            StringBuilder sum = new StringBuilder();
+            for (String code : branch.passiveComponents) {
+                addTerm(sum, yTerm(code), 1);
+            }
+            return valueOf(sum);
+        }
         return "1/(" + branchImpedance(branch) + ")";
     }
 
@@ -271,6 +312,22 @@ public class AssociaComponentiServlet extends HttpServlet {
 
     static int nodeCurrentSourceSign(Map<String, Integer> orientations, int nodeIndex, String currentSourceCode) {
         return orientations.getOrDefault(nodeIndex + "|" + currentSourceCode, 1);
+    }
+
+    private static Map<String, Integer> readMeshVoltageSourceOrientations(HttpServletRequest req, int equationCount) {
+        Map<String, Integer> out = new LinkedHashMap<>();
+        for (int i = 0; i < equationCount; i++) {
+            for (int g = 1; g <= AnalysisSessionContext.numeroGeneratoriTensione; g++) {
+                String dir = req.getParameter("mesh" + i + "_V_dir_" + g);
+                String code = "Vg" + (AnalysisSessionContext.numeroGeneratoriCorrente + g);
+                out.put(i + "|" + code, "opposto".equalsIgnoreCase(dir) ? -1 : 1);
+            }
+        }
+        return out;
+    }
+
+    static int meshVoltageSourceSign(Map<String, Integer> orientations, int meshIndex, String voltageSourceCode) {
+        return orientations.getOrDefault(meshIndex + "|" + voltageSourceCode, 1);
     }
 
     private static Map<String, Integer> readVoltageSourceOrientations(HttpServletRequest req, int equationCount) {
@@ -378,6 +435,7 @@ public class AssociaComponentiServlet extends HttpServlet {
         List<StringBuilder> b = newVector(n);
         Map<String, String> vxByCurrentSource = new LinkedHashMap<>();
         Map<String, Integer> orientations = readCurrentSourceOrientations(req, n);
+        Map<String, Integer> voltageOrientations = readMeshVoltageSourceOrientations(req, n);
         Map<String, String> branchLabels = readBranchLabels(req, n);
         Map<String, BranchGroup> passiveBranches = buildPassiveBranches(associations, branchLabels);
 
@@ -408,7 +466,7 @@ public class AssociaComponentiServlet extends HttpServlet {
             for (String code : componentsByMesh.get(i)) {
                 char type = code.charAt(0);
                 if (type == 'V') {
-                    addTerm(b.get(i), code, 1);
+                    addTerm(b.get(i), code, meshVoltageSourceSign(voltageOrientations, i, code));
                 } else if (type == 'I') {
                     String vx = vxByCurrentSource.computeIfAbsent(code, ignored -> "Vx" + (vxByCurrentSource.size() + 1));
                     addTerm(b.get(i), vx, 1);
@@ -439,7 +497,8 @@ public class AssociaComponentiServlet extends HttpServlet {
                 fullSystemLatex(equations, additionalRelations),
                 collectComponentSymbols(associations),
                 new ArrayList<>(vxByCurrentSource.values()),
-                orientations
+                orientations,
+                voltageOrientations
         );
     }
 
@@ -517,7 +576,8 @@ public class AssociaComponentiServlet extends HttpServlet {
                 fullSystemLatex(equations, additionalRelations),
                 collectComponentSymbols(associations),
                 extraUnknowns,
-                voltageOrientations
+                voltageOrientations,
+                new LinkedHashMap<>()
         );
     }
 
@@ -546,12 +606,14 @@ public class AssociaComponentiServlet extends HttpServlet {
         AnalysisSessionContext.extraUnknowns = equationSystem.extraUnknowns;
         if (method == CircuitMethod.MAGLIE) {
             AnalysisSessionContext.currentSourceOrientationByMesh = equationSystem.currentSourceOrientationByMesh;
+            AnalysisSessionContext.voltageSourceOrientationByMesh = equationSystem.voltageSourceOrientationByMesh;
             AnalysisSessionContext.currentSourceOrientationByNode = new LinkedHashMap<>();
             AnalysisSessionContext.voltageSourceOrientationByNode = new LinkedHashMap<>();
         } else {
             AnalysisSessionContext.currentSourceOrientationByNode = nodeCurrentOrientations;
             AnalysisSessionContext.voltageSourceOrientationByNode = equationSystem.currentSourceOrientationByMesh;
             AnalysisSessionContext.currentSourceOrientationByMesh = new LinkedHashMap<>();
+            AnalysisSessionContext.voltageSourceOrientationByMesh = new LinkedHashMap<>();
         }
         AnalysisSessionContext.latexMatrix = equationSystem.latexMatrix;
         AnalysisSessionContext.latexExpandedSystem = equationSystem.latexExpandedSystem;
