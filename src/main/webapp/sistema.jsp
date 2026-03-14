@@ -63,7 +63,7 @@
 
     <hr>
     <h3>Valori numerici</h3>
-    <p class="muted">Inserisci \(\omega\), i valori dei componenti passivi e modulo/fase dei generatori per risolvere il sistema.</p>
+    <p class="muted">Inserisci \(\omega\) e i valori numerici per risolvere il sistema. Le frazioni scriverle come tale, ad esempio <strong>1/2</strong>.</p>
 
     <form action="SolveSystemServlet" method="post">
       <div class="grid">
@@ -88,7 +88,7 @@
               } else {
             %>
               <label for="phasor_<%=code%>">Valore fasoriale</label>
-              <input type="text" id="phasor_<%=code%>" name="phasor_<%=code%>" placeholder="es. 3-j" value="<%= request.getParameter("phasor_" + code) != null ? request.getParameter("phasor_" + code) : "" %>">
+              <input type="text" id="phasor_<%=code%>" name="phasor_<%=code%>" placeholder="es. 1/2+3/4j" value="<%= request.getParameter("phasor_" + code) != null ? request.getParameter("phasor_" + code) : "" %>">
             <%
               }
             %>
