@@ -4,7 +4,9 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,22 +15,15 @@ import java.util.List;
 import java.util.Objects;
 
 @WebServlet("/ImageUploadServlet")
-@MultipartConfig(maxFileSize = 10*1024*1024, maxRequestSize = 20*1024*1024, fileSizeThreshold = 0)
-
+@MultipartConfig(maxFileSize = 10 * 1024 * 1024, maxRequestSize = 20 * 1024 * 1024, fileSizeThreshold = 0)
 public class ImageUploadServlet extends HttpServlet {
 
     private Path uploadDir;
-    static int numero_correnti_maglia;
-    static int numero_resistenze;
-    static  List<String> direzioni_correnti_maglia = new ArrayList<>();
-    static  List<String> correnti_di_maglia = new ArrayList<>();
 
     @Override
     public void init() throws ServletException {
         try {
-            // Cartella esterna configurabile: -Dcircuiti.upload.dir=/percorso
-            String base = System.getProperty("circuiti.upload.dir",
-                    System.getProperty("java.io.tmpdir"));
+            String base = System.getProperty("circuiti.upload.dir", System.getProperty("java.io.tmpdir"));
             uploadDir = Path.of(base, "circuiti-uploads");
             Files.createDirectories(uploadDir);
         } catch (IOException e) {
@@ -37,33 +32,15 @@ public class ImageUploadServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String methodStr = req.getParameter("method");
-        numero_resistenze = Integer.parseInt(req.getParameter("count"));
-        int numero_induttanze = Integer.parseInt(req.getParameter("count2"));
-        int numero_condensatori = Integer.parseInt(req.getParameter("count3"));
-        int numero_gen_corrente = Integer.parseInt(req.getParameter("count4"));
-        int numero_gen_tensione = Integer.parseInt(req.getParameter("count5"));
-        numero_correnti_maglia = Integer.parseInt(req.getParameter("meshCount")); //null se check nodi
-
-
-
-        //List<String> correnti_di_maglia = new ArrayList<>();
-        //List<String> direzioni_correnti_maglia = new ArrayList<>();
-
-        for(int i=0;i<numero_correnti_maglia;i++)
-        {
-            correnti_di_maglia.add(i, req.getParameter("meshNames"+(i+1)));
-        }
-        for(int i=0;i<numero_correnti_maglia;i++)
-        {
-            direzioni_correnti_maglia.add(i, req.getParameter("meshDir"+(i+1)));
-        }
-
-
-
+        int numeroResistenze = Integer.parseInt(req.getParameter("count"));
+        int numeroInduttanze = Integer.parseInt(req.getParameter("count2"));
+        int numeroCondensatori = Integer.parseInt(req.getParameter("count3"));
+        int numeroGeneratoriCorrente = Integer.parseInt(req.getParameter("count4"));
+        int numeroGeneratoriTensione = Integer.parseInt(req.getParameter("count5"));
+        int equationCount = Integer.parseInt(req.getParameter("entityCount"));
+        String referenceNodeName = req.getParameter("referenceNodeName");
 
         CircuitMethod method;
         try {
@@ -73,37 +50,55 @@ public class ImageUploadServlet extends HttpServlet {
             return;
         }
 
+        List<String> variableNames = new ArrayList<>();
+        List<String> meshDirections = new ArrayList<>();
+        for (int i = 0; i < equationCount; i++) {
+            String rawName = req.getParameter("entityNames" + (i + 1));
+            String fallback = method == CircuitMethod.MAGLIE ? "I" + (i + 1) : "V" + (i + 1);
+            variableNames.add((rawName == null || rawName.isBlank()) ? fallback : rawName.trim());
+        }
+        if (method == CircuitMethod.MAGLIE) {
+            for (int i = 0; i < equationCount; i++) {
+                String direction = req.getParameter("meshDir" + (i + 1));
+                meshDirections.add((direction == null || direction.isBlank()) ? "CW" : direction);
+            }
+        }
 
-
-
-
-
+        AnalysisSessionContext.reset();
+        AnalysisSessionContext.method = method;
+        AnalysisSessionContext.equationCount = equationCount;
+        AnalysisSessionContext.numeroResistenze = numeroResistenze;
+        AnalysisSessionContext.numeroInduttanze = numeroInduttanze;
+        AnalysisSessionContext.numeroCondensatori = numeroCondensatori;
+        AnalysisSessionContext.numeroGeneratoriCorrente = numeroGeneratoriCorrente;
+        AnalysisSessionContext.numeroGeneratoriTensione = numeroGeneratoriTensione;
+        AnalysisSessionContext.variableNames = variableNames;
+        AnalysisSessionContext.meshDirections = meshDirections;
+        AnalysisSessionContext.referenceNodeName = (referenceNodeName == null || referenceNodeName.isBlank()) ? "GND" : referenceNodeName.trim();
 
         req.setAttribute("method", method.name());
-        req.setAttribute("valori_resistenze", numero_resistenze);
-        req.setAttribute("valori_induttanze", numero_induttanze);
-        req.setAttribute("valori_condensatori", numero_condensatori);
-        req.setAttribute("valori_generatori_corrente", numero_gen_corrente);
-        req.setAttribute("valori_generatori_tensione", numero_gen_tensione);
-        req.setAttribute("correnti_di_maglia", correnti_di_maglia);
-        req.setAttribute("direzioni_correnti_maglia", direzioni_correnti_maglia);
+        req.setAttribute("valori_resistenze", numeroResistenze);
+        req.setAttribute("valori_induttanze", numeroInduttanze);
+        req.setAttribute("valori_condensatori", numeroCondensatori);
+        req.setAttribute("valori_generatori_corrente", numeroGeneratoriCorrente);
+        req.setAttribute("valori_generatori_tensione", numeroGeneratoriTensione);
+        req.setAttribute("entityCount", equationCount);
+        req.setAttribute("variableNames", variableNames);
+        req.setAttribute("meshDirections", meshDirections);
+        req.setAttribute("referenceNodeName", AnalysisSessionContext.referenceNodeName);
 
-
-
-        // prendi il nome del PNG di debug salvato dal parser
         String debugName = System.getProperty("last.debug.filename");
         if (debugName != null) {
             req.setAttribute("debugFileName", debugName);
         }
-        System.out.println(
-                  " | " + method.name() + " | " + numero_resistenze
-        );
-        for(int i=0;i<numero_correnti_maglia;i++)
-        {
-            System.out.println("Correnti di maglia"+correnti_di_maglia.get(i));
-            System.out.println("Direzioni: "+ direzioni_correnti_maglia.get(i));
-        }
 
+        System.out.println(" | " + method.name() + " | " + numeroResistenze);
+        for (int i = 0; i < equationCount; i++) {
+            System.out.println("Variabile " + variableNames.get(i));
+            if (method == CircuitMethod.MAGLIE) {
+                System.out.println("Direzione: " + meshDirections.get(i));
+            }
+        }
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("/result.jsp");
         dispatcher.forward(req, resp);
