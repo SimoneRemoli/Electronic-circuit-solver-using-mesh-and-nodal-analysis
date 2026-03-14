@@ -429,6 +429,34 @@ public class AssociaComponentiServlet extends HttpServlet {
         return out.toString();
     }
 
+    private static String pairKey(int firstMesh, int secondMesh) {
+        return Math.min(firstMesh, secondMesh) + "|" + Math.max(firstMesh, secondMesh);
+    }
+
+    private static Map<String, Integer> sharedBranchCountByPair(Map<String, BranchGroup> passiveBranches) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        for (BranchGroup branch : passiveBranches.values()) {
+            Integer[] entities = branch.entities.toArray(new Integer[0]);
+            for (int left = 0; left < entities.length; left++) {
+                for (int right = left + 1; right < entities.length; right++) {
+                    String key = pairKey(entities[left], entities[right]);
+                    counts.put(key, counts.getOrDefault(key, 0) + 1);
+                }
+            }
+        }
+        return counts;
+    }
+
+    private static int meshCouplingSign(int firstMesh, int secondMesh, BranchGroup branch, Map<String, Integer> sharedBranchCounts) {
+        if (branch.entities.size() > 2) {
+            return sharedBranchCounts.getOrDefault(pairKey(firstMesh, secondMesh), 0) > 1 ? 1 : -1;
+        }
+        List<String> directions = AnalysisSessionContext.meshDirections;
+        String first = directions != null && firstMesh < directions.size() ? directions.get(firstMesh) : "CW";
+        String second = directions != null && secondMesh < directions.size() ? directions.get(secondMesh) : "CW";
+        return first.equalsIgnoreCase(second) ? -1 : 1;
+    }
+
     private static EquationSystem buildMeshSystem(HttpServletRequest req, String[][] associations, List<String> unknowns) {
         int n = unknowns.size();
         List<List<StringBuilder>> a = newMatrix(n, n);
@@ -438,6 +466,7 @@ public class AssociaComponentiServlet extends HttpServlet {
         Map<String, Integer> voltageOrientations = readMeshVoltageSourceOrientations(req, n);
         Map<String, String> branchLabels = readBranchLabels(req, n);
         Map<String, BranchGroup> passiveBranches = buildPassiveBranches(associations, branchLabels);
+        Map<String, Integer> sharedBranchCounts = sharedBranchCountByPair(passiveBranches);
 
         List<Set<String>> componentsByMesh = new ArrayList<>();
         for (int i = 0; i < n; i++) {
@@ -455,10 +484,13 @@ public class AssociaComponentiServlet extends HttpServlet {
             for (Integer entity : branch.entities) {
                 addTerm(a.get(entity).get(entity), zBranch, 1);
             }
-            if (branch.entities.size() == 2) {
-                Integer[] shared = branch.entities.toArray(new Integer[0]);
-                addTerm(a.get(shared[0]).get(shared[1]), zBranch, 1);
-                addTerm(a.get(shared[1]).get(shared[0]), zBranch, 1);
+            Integer[] shared = branch.entities.toArray(new Integer[0]);
+            for (int left = 0; left < shared.length; left++) {
+                for (int right = left + 1; right < shared.length; right++) {
+                    int sign = meshCouplingSign(shared[left], shared[right], branch, sharedBranchCounts);
+                    addTerm(a.get(shared[left]).get(shared[right]), zBranch, sign);
+                    addTerm(a.get(shared[right]).get(shared[left]), zBranch, sign);
+                }
             }
         }
 
