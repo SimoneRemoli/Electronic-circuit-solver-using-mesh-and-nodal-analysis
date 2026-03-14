@@ -1,6 +1,6 @@
 # MaglieNodi
 
-MaglieNodi e un'applicazione web didattica per costruire, visualizzare e risolvere circuiti elettrici nel dominio dei fasori con:
+MaglieNodi è un'applicazione web didattica per costruire, visualizzare e risolvere circuiti elettrici nel dominio dei fasori con:
 
 - metodo delle maglie
 - metodo dei nodi
