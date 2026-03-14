@@ -7,7 +7,7 @@ MaglieNodi e un'applicazione web didattica per costruire, visualizzare e risolve
 - costruzione simbolica del sistema
 - risoluzione numerica finale
 
-L'obiettivo non e solo ottenere un risultato, ma rendere leggibile il passaggio da schema circuitale a sistema di equazioni.
+L'obiettivo non è solo ottenere un risultato, ma rendere leggibile il passaggio da schema circuitale a sistema di equazioni.
 
 ## Vetrina
 
