@@ -439,7 +439,7 @@
         </div>
       </div>
 
-      <form action="ImageUploadServlet" method="post" enctype="multipart/form-data">
+      <form id="configForm" action="ImageUploadServlet" method="post" enctype="multipart/form-data">
         <div class="method-grid">
           <div class="field">
             <label for="method">Metodo di analisi</label>
@@ -554,6 +554,8 @@
 
   <script>
     (function () {
+      const STORAGE_KEY = 'maglienodi:index-draft:v1';
+      const form = document.getElementById('configForm');
       const methodSel = document.getElementById('method');
       const entitySection = document.getElementById('entitySection');
       const entityCount = document.getElementById('entityCount');
@@ -668,6 +670,48 @@
       });
 
       entityCount.addEventListener('input', () => renderEntities(entityCount.value));
+
+      function saveDraft() {
+        const fields = {};
+        new FormData(form).forEach((value, key) => {
+          fields[key] = value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ fields }));
+      }
+
+      function restoreDraft() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const saved = JSON.parse(raw);
+          const fields = saved && saved.fields ? saved.fields : {};
+          if (fields.method) {
+            methodSel.value = fields.method;
+            methodSel.dispatchEvent(new Event('change'));
+          }
+          if (fields.entityCount) {
+            entityCount.value = fields.entityCount;
+            entityCount.dispatchEvent(new Event('input'));
+          }
+          Object.keys(fields).forEach((name) => {
+            const field = form.elements.namedItem(name);
+            if (!field) return;
+            if (field instanceof RadioNodeList) {
+              Array.from(field).forEach((input) => {
+                input.checked = input.value === fields[name];
+              });
+            } else {
+              field.value = fields[name];
+            }
+          });
+        } catch (error) {
+          console.warn('Ripristino configurazione fallito', error);
+        }
+      }
+
+      form.addEventListener('input', saveDraft);
+      form.addEventListener('change', saveDraft);
+      restoreDraft();
     })();
   </script>
 </body>

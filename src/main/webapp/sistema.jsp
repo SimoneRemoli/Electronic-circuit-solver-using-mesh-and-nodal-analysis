@@ -61,6 +61,19 @@
     <h3>Sistema completo</h3>
     <div><%= request.getAttribute("latexFullSystem") %></div>
 
+    <%
+      Object topologyJson = request.getAttribute("topologyJson");
+      if (topologyJson != null && !topologyJson.toString().isBlank()) {
+    %>
+      <h3>Schema topologico salvato</h3>
+      <details>
+        <summary>Mostra dati editor visuale</summary>
+        <pre style="white-space:pre-wrap; word-break:break-word;"><%= topologyJson %></pre>
+      </details>
+    <%
+      }
+    %>
+
     <hr>
     <h3>Valori numerici</h3>
     <p class="muted">Inserisci \(\omega\) e i valori numerici per risolvere il sistema. Le frazioni scriverle come tale, ad esempio <strong>1/2</strong>.</p>

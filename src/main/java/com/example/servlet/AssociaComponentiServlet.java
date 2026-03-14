@@ -142,17 +142,142 @@ public class AssociaComponentiServlet extends HttpServlet {
         }
     }
 
+    private static Map<Integer, CircuitTopology.Face> topologyFacesByMesh(String[][] associations) {
+        CircuitTopology.Model model = CircuitTopology.parse(
+                AnalysisSessionContext.topologyNodesData,
+                AnalysisSessionContext.topologyBranchesData
+        );
+        if (model.faces.isEmpty()) {
+            return new LinkedHashMap<>();
+        }
+        Map<Integer, double[]> markers = CircuitTopology.parseMeshMarkers(AnalysisSessionContext.topologyMeshMarkersData);
+        if (!markers.isEmpty()) {
+            return CircuitTopology.matchFacesToMeshesByMarkers(model.faces, markers);
+        }
+        return CircuitTopology.matchFacesToMeshes(model.faces, associations);
+    }
+
+    private static CircuitTopology.Model topologyModel() {
+        return CircuitTopology.parse(
+                AnalysisSessionContext.topologyNodesData,
+                AnalysisSessionContext.topologyBranchesData
+        );
+    }
+
+    private static String requestValue(HttpServletRequest req, String name) {
+        String value = req.getParameter(name);
+        return value == null ? "" : value.trim();
+    }
+
+    private static Map<Integer, String> readNodeBindings(HttpServletRequest req, int equationCount) {
+        Map<Integer, String> bindings = new LinkedHashMap<>();
+        for (int i = 0; i < equationCount; i++) {
+            String nodeId = requestValue(req, "topologyNodeForEntity" + i);
+            if (!nodeId.isEmpty()) {
+                bindings.put(i, nodeId);
+            }
+        }
+        return bindings;
+    }
+
+    private static String readReferenceTopologyNode(HttpServletRequest req) {
+        return requestValue(req, "referenceTopologyNode");
+    }
+
+    private static Set<String> allowedComponentCodes() {
+        Set<String> allowed = new LinkedHashSet<>();
+        for (int i = 1; i <= AnalysisSessionContext.numeroResistenze; i++) {
+            allowed.add("R" + i);
+        }
+        for (int i = 1; i <= AnalysisSessionContext.numeroInduttanze; i++) {
+            allowed.add("L" + i);
+        }
+        for (int i = 1; i <= AnalysisSessionContext.numeroCondensatori; i++) {
+            allowed.add("C" + i);
+        }
+        if (AnalysisSessionContext.method == CircuitMethod.NODI) {
+            for (int i = 1; i <= AnalysisSessionContext.numeroGeneratoriTensione; i++) {
+                allowed.add("Vg" + i);
+            }
+            for (int i = 1; i <= AnalysisSessionContext.numeroGeneratoriCorrente; i++) {
+                allowed.add("Ig" + (AnalysisSessionContext.numeroGeneratoriTensione + i));
+            }
+        } else {
+            for (int i = 1; i <= AnalysisSessionContext.numeroGeneratoriCorrente; i++) {
+                allowed.add("Ig" + i);
+            }
+            for (int i = 1; i <= AnalysisSessionContext.numeroGeneratoriTensione; i++) {
+                allowed.add("Vg" + (AnalysisSessionContext.numeroGeneratoriCorrente + i));
+            }
+        }
+        return allowed;
+    }
+
+    private static List<String> invalidTopologyComponents() {
+        List<String> invalid = new ArrayList<>();
+        Set<String> allowed = allowedComponentCodes();
+        CircuitTopology.Model model = topologyModel();
+        for (CircuitTopology.Branch branch : model.branches) {
+            for (String code : branch.components) {
+                if (!allowed.contains(code)) {
+                    invalid.add(branch.id + ": " + code);
+                }
+            }
+        }
+        return invalid;
+    }
+
+    private static void populateViewAttributes(HttpServletRequest req) {
+        req.setAttribute("method", AnalysisSessionContext.method.name());
+        req.setAttribute("referenceNodeName", AnalysisSessionContext.referenceNodeName);
+        req.setAttribute("valori_resistenze", AnalysisSessionContext.numeroResistenze);
+        req.setAttribute("valori_induttanze", AnalysisSessionContext.numeroInduttanze);
+        req.setAttribute("valori_condensatori", AnalysisSessionContext.numeroCondensatori);
+        req.setAttribute("valori_generatori_corrente", AnalysisSessionContext.numeroGeneratoriCorrente);
+        req.setAttribute("valori_generatori_tensione", AnalysisSessionContext.numeroGeneratoriTensione);
+        req.setAttribute("entityCount", AnalysisSessionContext.equationCount);
+        req.setAttribute("variableNames", AnalysisSessionContext.variableNames);
+        req.setAttribute("meshDirections", AnalysisSessionContext.meshDirections);
+    }
+
+    private static Map<String, Integer> meshIndexByName(List<String> unknowns) {
+        Map<String, Integer> indexes = new LinkedHashMap<>();
+        for (int i = 0; i < unknowns.size(); i++) {
+            indexes.put(unknowns.get(i), i);
+        }
+        return indexes;
+    }
+
     private static String[][] readAssociations(HttpServletRequest req, int equationCount) {
         List<List<String>> rows = new ArrayList<>();
         int maxSize = 1;
+        CircuitTopology.Model model = topologyModel();
+        Map<Integer, String> bindings = AnalysisSessionContext.method == CircuitMethod.NODI
+                ? readNodeBindings(req, equationCount)
+                : new LinkedHashMap<>();
+        String referenceNodeId = AnalysisSessionContext.method == CircuitMethod.NODI
+                ? readReferenceTopologyNode(req)
+                : "";
         for (int i = 0; i < equationCount; i++) {
-            List<String> components = new ArrayList<>();
-            appendValues(components, req.getParameterValues("mesh" + i + "_R"));
-            appendValues(components, req.getParameterValues("mesh" + i + "_L"));
-            appendValues(components, req.getParameterValues("mesh" + i + "_C"));
-            appendValues(components, req.getParameterValues("mesh" + i + "_I"));
-            appendValues(components, req.getParameterValues("mesh" + i + "_V"));
-            rows.add(components);
+            Set<String> components = new LinkedHashSet<>();
+            if (AnalysisSessionContext.method == CircuitMethod.MAGLIE) {
+                String meshCode = AnalysisSessionContext.variableNames.get(i);
+                for (CircuitTopology.Branch branch : model.branches) {
+                    if (branch.meshCurrents.getOrDefault(meshCode, 0) != 0) {
+                        components.addAll(branch.components);
+                    }
+                }
+            } else {
+                String nodeId = bindings.get(i);
+                if (nodeId != null && !nodeId.equals(referenceNodeId)) {
+                    for (CircuitTopology.Branch branch : model.branches) {
+                        if (nodeId.equals(branch.from) || nodeId.equals(branch.to)) {
+                            components.addAll(branch.components);
+                        }
+                    }
+                }
+            }
+            rows.add(new ArrayList<>(components));
             maxSize = Math.max(maxSize, components.size());
         }
 
@@ -197,6 +322,44 @@ public class AssociaComponentiServlet extends HttpServlet {
 
     static Map<String, String> readBranchLabels(HttpServletRequest req, int equationCount) {
         Map<String, String> labels = new LinkedHashMap<>();
+        if (AnalysisSessionContext.topologyBranchesData != null && !AnalysisSessionContext.topologyBranchesData.isBlank()) {
+            CircuitTopology.Model model = topologyModel();
+            if (AnalysisSessionContext.method == CircuitMethod.MAGLIE) {
+                for (int meshIndex = 0; meshIndex < equationCount; meshIndex++) {
+                    String meshCode = AnalysisSessionContext.variableNames.get(meshIndex);
+                    for (CircuitTopology.Branch branch : model.branches) {
+                        if (branch.meshCurrents.getOrDefault(meshCode, 0) == 0) {
+                            continue;
+                        }
+                        for (String code : branch.components) {
+                            if (code.startsWith("R") || code.startsWith("L") || code.startsWith("C")) {
+                                labels.put(meshIndex + "|" + code, branch.id);
+                            }
+                        }
+                    }
+                }
+            } else {
+                Map<Integer, String> bindings = readNodeBindings(req, equationCount);
+                String referenceNodeId = readReferenceTopologyNode(req);
+                for (Map.Entry<Integer, String> binding : bindings.entrySet()) {
+                    Integer entityIndex = binding.getKey();
+                    String nodeId = binding.getValue();
+                    if (nodeId.equals(referenceNodeId)) {
+                        continue;
+                    }
+                    for (CircuitTopology.Branch branch : model.branches) {
+                        if (!nodeId.equals(branch.from) && !nodeId.equals(branch.to)) {
+                            continue;
+                        }
+                        for (String code : branch.components) {
+                            if (code.startsWith("R") || code.startsWith("L") || code.startsWith("C")) {
+                                labels.put(entityIndex + "|" + code, branch.id);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         String rawSeriesGroups = req.getParameter("seriesGroupsData");
         if (rawSeriesGroups != null && !rawSeriesGroups.isBlank()) {
             String[] groups = rawSeriesGroups.split("\\|");
@@ -285,10 +448,24 @@ public class AssociaComponentiServlet extends HttpServlet {
 
     private static Map<String, Integer> readCurrentSourceOrientations(HttpServletRequest req, int equationCount) {
         Map<String, Integer> out = new LinkedHashMap<>();
-        for (int i = 0; i < equationCount; i++) {
-            for (int g = 1; g <= AnalysisSessionContext.numeroGeneratoriCorrente; g++) {
-                String dir = req.getParameter("mesh" + i + "_I_dir_" + g);
-                out.put(i + "|Ig" + g, "discorde".equalsIgnoreCase(dir) ? -1 : 1);
+        CircuitTopology.Model model = topologyModel();
+        for (int meshIndex = 0; meshIndex < equationCount; meshIndex++) {
+            String meshCode = AnalysisSessionContext.variableNames.get(meshIndex);
+            for (CircuitTopology.Branch branch : model.branches) {
+                int meshSign = branch.meshCurrents.getOrDefault(meshCode, 0);
+                if (meshSign == 0) {
+                    continue;
+                }
+                for (String code : branch.components) {
+                    if (code.startsWith("Ig")) {
+                        String explicitKey = meshCode + "@" + code;
+                        Integer explicitSign = branch.meshCurrentSourceSigns.get(explicitKey);
+                        int sign = explicitSign != null
+                                ? explicitSign
+                                : meshSign * branch.currentDirections.getOrDefault(code, 1);
+                        out.put(meshIndex + "|" + code, sign);
+                    }
+                }
             }
         }
         return out;
@@ -300,11 +477,30 @@ public class AssociaComponentiServlet extends HttpServlet {
 
     private static Map<String, Integer> readNodeCurrentSourceOrientations(HttpServletRequest req, int equationCount) {
         Map<String, Integer> out = new LinkedHashMap<>();
-        for (int i = 0; i < equationCount; i++) {
-            for (int g = 1; g <= AnalysisSessionContext.numeroGeneratoriCorrente; g++) {
-                String dir = req.getParameter("mesh" + i + "_I_dir_" + g);
-                String code = "Ig" + (AnalysisSessionContext.numeroGeneratoriTensione + g);
-                out.put(i + "|" + code, "uscente".equalsIgnoreCase(dir) ? -1 : 1);
+        CircuitTopology.Model model = topologyModel();
+        Map<Integer, String> bindings = readNodeBindings(req, equationCount);
+        String referenceNodeId = readReferenceTopologyNode(req);
+        for (Map.Entry<Integer, String> entry : bindings.entrySet()) {
+            int entityIndex = entry.getKey();
+            String nodeId = entry.getValue();
+            if (nodeId.equals(referenceNodeId)) {
+                continue;
+            }
+            for (CircuitTopology.Branch branch : model.branches) {
+                if (!nodeId.equals(branch.from) && !nodeId.equals(branch.to)) {
+                    continue;
+                }
+                for (String code : branch.components) {
+                    if (!code.startsWith("Ig")) {
+                        continue;
+                    }
+                    int arrowSign = branch.currentDirections.getOrDefault(code, 1);
+                    if (nodeId.equals(branch.from)) {
+                        out.put(entityIndex + "|" + code, -arrowSign);
+                    } else if (nodeId.equals(branch.to)) {
+                        out.put(entityIndex + "|" + code, arrowSign);
+                    }
+                }
             }
         }
         return out;
@@ -316,11 +512,24 @@ public class AssociaComponentiServlet extends HttpServlet {
 
     private static Map<String, Integer> readMeshVoltageSourceOrientations(HttpServletRequest req, int equationCount) {
         Map<String, Integer> out = new LinkedHashMap<>();
-        for (int i = 0; i < equationCount; i++) {
-            for (int g = 1; g <= AnalysisSessionContext.numeroGeneratoriTensione; g++) {
-                String dir = req.getParameter("mesh" + i + "_V_dir_" + g);
-                String code = "Vg" + (AnalysisSessionContext.numeroGeneratoriCorrente + g);
-                out.put(i + "|" + code, "opposto".equalsIgnoreCase(dir) ? -1 : 1);
+        CircuitTopology.Model model = topologyModel();
+        for (int meshIndex = 0; meshIndex < equationCount; meshIndex++) {
+            String meshCode = AnalysisSessionContext.variableNames.get(meshIndex);
+            for (CircuitTopology.Branch branch : model.branches) {
+                int meshSign = branch.meshCurrents.getOrDefault(meshCode, 0);
+                if (meshSign == 0) {
+                    continue;
+                }
+                for (String code : branch.components) {
+                    if (code.startsWith("Vg")) {
+                        String explicitKey = meshCode + "@" + code;
+                        Integer explicitSign = branch.meshVoltageSourceSigns.get(explicitKey);
+                        int sign = explicitSign != null
+                                ? explicitSign
+                                : -meshSign * branch.voltagePolarities.getOrDefault(code, 1);
+                        out.put(meshIndex + "|" + code, sign);
+                    }
+                }
             }
         }
         return out;
@@ -332,11 +541,30 @@ public class AssociaComponentiServlet extends HttpServlet {
 
     private static Map<String, Integer> readVoltageSourceOrientations(HttpServletRequest req, int equationCount) {
         Map<String, Integer> out = new LinkedHashMap<>();
-        for (int i = 0; i < equationCount; i++) {
-            for (int g = 1; g <= AnalysisSessionContext.numeroGeneratoriTensione; g++) {
-                String dir = req.getParameter("mesh" + i + "_V_dir_" + g);
-                String code = "Vg" + g;
-                out.put(i + "|" + code, "discorde".equalsIgnoreCase(dir) ? -1 : 1);
+        CircuitTopology.Model model = topologyModel();
+        Map<Integer, String> bindings = readNodeBindings(req, equationCount);
+        String referenceNodeId = readReferenceTopologyNode(req);
+        for (Map.Entry<Integer, String> entry : bindings.entrySet()) {
+            int entityIndex = entry.getKey();
+            String nodeId = entry.getValue();
+            if (nodeId.equals(referenceNodeId)) {
+                continue;
+            }
+            for (CircuitTopology.Branch branch : model.branches) {
+                if (!nodeId.equals(branch.from) && !nodeId.equals(branch.to)) {
+                    continue;
+                }
+                for (String code : branch.components) {
+                    if (!code.startsWith("Vg")) {
+                        continue;
+                    }
+                    int polaritySign = branch.voltagePolarities.getOrDefault(code, 1);
+                    if (nodeId.equals(branch.from)) {
+                        out.put(entityIndex + "|" + code, polaritySign);
+                    } else if (nodeId.equals(branch.to)) {
+                        out.put(entityIndex + "|" + code, -polaritySign);
+                    }
+                }
             }
         }
         return out;
@@ -429,6 +657,21 @@ public class AssociaComponentiServlet extends HttpServlet {
         return out.toString();
     }
 
+    private static Map<String, Integer> topologyBranchOrientationByMesh(String[][] associations) {
+        Map<String, Integer> out = new LinkedHashMap<>();
+        CircuitTopology.Model model = topologyModel();
+        for (int meshIndex = 0; meshIndex < AnalysisSessionContext.variableNames.size(); meshIndex++) {
+            String meshCode = AnalysisSessionContext.variableNames.get(meshIndex);
+            for (CircuitTopology.Branch branch : model.branches) {
+                int sign = branch.meshCurrents.getOrDefault(meshCode, 0);
+                if (sign != 0) {
+                    out.put(meshIndex + "|" + branch.id, sign);
+                }
+            }
+        }
+        return out;
+    }
+
     private static String pairKey(int firstMesh, int secondMesh) {
         return Math.min(firstMesh, secondMesh) + "|" + Math.max(firstMesh, secondMesh);
     }
@@ -447,7 +690,18 @@ public class AssociaComponentiServlet extends HttpServlet {
         return counts;
     }
 
-    private static int meshCouplingSign(int firstMesh, int secondMesh, BranchGroup branch, Map<String, Integer> sharedBranchCounts) {
+    private static int meshCouplingSign(
+            int firstMesh,
+            int secondMesh,
+            BranchGroup branch,
+            Map<String, Integer> sharedBranchCounts,
+            Map<String, Integer> branchOrientationByMesh
+    ) {
+        Integer firstOrientation = branchOrientationByMesh.get(firstMesh + "|" + branch.label);
+        Integer secondOrientation = branchOrientationByMesh.get(secondMesh + "|" + branch.label);
+        if (firstOrientation != null && secondOrientation != null) {
+            return firstOrientation == secondOrientation ? 1 : -1;
+        }
         if (branch.entities.size() > 2) {
             return sharedBranchCounts.getOrDefault(pairKey(firstMesh, secondMesh), 0) > 1 ? 1 : -1;
         }
@@ -467,6 +721,7 @@ public class AssociaComponentiServlet extends HttpServlet {
         Map<String, String> branchLabels = readBranchLabels(req, n);
         Map<String, BranchGroup> passiveBranches = buildPassiveBranches(associations, branchLabels);
         Map<String, Integer> sharedBranchCounts = sharedBranchCountByPair(passiveBranches);
+        Map<String, Integer> branchOrientationByMesh = topologyBranchOrientationByMesh(associations);
 
         List<Set<String>> componentsByMesh = new ArrayList<>();
         for (int i = 0; i < n; i++) {
@@ -487,7 +742,7 @@ public class AssociaComponentiServlet extends HttpServlet {
             Integer[] shared = branch.entities.toArray(new Integer[0]);
             for (int left = 0; left < shared.length; left++) {
                 for (int right = left + 1; right < shared.length; right++) {
-                    int sign = meshCouplingSign(shared[left], shared[right], branch, sharedBranchCounts);
+                    int sign = meshCouplingSign(shared[left], shared[right], branch, sharedBranchCounts, branchOrientationByMesh);
                     addTerm(a.get(shared[left]).get(shared[right]), zBranch, sign);
                     addTerm(a.get(shared[right]).get(shared[left]), zBranch, sign);
                 }
@@ -501,7 +756,7 @@ public class AssociaComponentiServlet extends HttpServlet {
                     addTerm(b.get(i), code, meshVoltageSourceSign(voltageOrientations, i, code));
                 } else if (type == 'I') {
                     String vx = vxByCurrentSource.computeIfAbsent(code, ignored -> "Vx" + (vxByCurrentSource.size() + 1));
-                    addTerm(b.get(i), vx, 1);
+                    addTerm(b.get(i), vx, currentSourceSign(orientations, i, code));
                 }
             }
         }
@@ -624,6 +879,22 @@ public class AssociaComponentiServlet extends HttpServlet {
             return;
         }
 
+        AnalysisSessionContext.topologyJson = req.getParameter("topologyData");
+        AnalysisSessionContext.topologyNodesData = req.getParameter("topologyNodesData");
+        AnalysisSessionContext.topologyBranchesData = req.getParameter("topologyBranchesData");
+        AnalysisSessionContext.topologyMeshMarkersData = req.getParameter("topologyMeshMarkersData");
+
+        List<String> invalidComponents = invalidTopologyComponents();
+        if (!invalidComponents.isEmpty()) {
+            populateViewAttributes(req);
+            req.setAttribute(
+                    "topologyValidationError",
+                    "Componenti non validi nei rami: " + String.join(", ", invalidComponents)
+            );
+            req.getRequestDispatcher("/result.jsp").forward(req, resp);
+            return;
+        }
+
         String[][] associations = readAssociations(req, equationCount);
         EquationSystem equationSystem = method == CircuitMethod.NODI
                 ? buildNodeSystem(req, associations, unknowns)
@@ -652,13 +923,13 @@ public class AssociaComponentiServlet extends HttpServlet {
         AnalysisSessionContext.latexAdditionalRelations = equationSystem.latexAdditionalRelations;
         AnalysisSessionContext.latexFullSystem = equationSystem.latexFullSystem;
 
-        req.setAttribute("method", method.name());
-        req.setAttribute("referenceNodeName", AnalysisSessionContext.referenceNodeName);
+        populateViewAttributes(req);
         req.setAttribute("latexSystem", equationSystem.latexMatrix);
         req.setAttribute("latexExpandedSystem", equationSystem.latexExpandedSystem);
         req.setAttribute("latexConstraints", equationSystem.latexAdditionalRelations);
         req.setAttribute("latexFullSystem", equationSystem.latexFullSystem);
         req.setAttribute("componentSymbols", equationSystem.componentSymbols);
+        req.setAttribute("topologyJson", AnalysisSessionContext.topologyJson);
         req.getRequestDispatcher("/sistema.jsp").forward(req, resp);
     }
 }
