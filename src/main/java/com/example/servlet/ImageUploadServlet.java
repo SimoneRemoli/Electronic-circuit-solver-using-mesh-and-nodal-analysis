@@ -54,7 +54,7 @@ public class ImageUploadServlet extends HttpServlet {
         List<String> meshDirections = new ArrayList<>();
         for (int i = 0; i < equationCount; i++) {
             String rawName = req.getParameter("entityNames" + (i + 1));
-            String fallback = method == CircuitMethod.MAGLIE ? "I" + (i + 1) : "V" + (i + 1);
+            String fallback = method == CircuitMethod.MAGLIE ? "I" + (i + 1) : "E" + (i + 1);
             variableNames.add((rawName == null || rawName.isBlank()) ? fallback : rawName.trim());
         }
         if (method == CircuitMethod.MAGLIE) {

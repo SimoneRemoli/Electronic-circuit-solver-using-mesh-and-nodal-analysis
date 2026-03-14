@@ -589,7 +589,7 @@
         n = Math.min(Math.max(parseInt(n || '0', 10), 0), 50);
 
         const isMaglie = methodSel.value === 'MAGLIE';
-        const baseName = isMaglie ? 'I' : 'V';
+        const baseName = isMaglie ? 'I' : 'E';
 
         for (let i = 1; i <= n; i++) {
           const panel = document.createElement('div');
