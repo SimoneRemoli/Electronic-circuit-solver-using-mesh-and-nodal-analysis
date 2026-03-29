@@ -1,6 +1,6 @@
-# MaglieNodi
+# Noduloom
 
-MaglieNodi è un'applicazione web didattica per costruire, visualizzare e risolvere circuiti elettrici nel dominio dei fasori con:
+Noduloom è un'applicazione web didattica per costruire, visualizzare e risolvere circuiti elettrici nel dominio dei fasori con:
 
 - metodo delle maglie
 - metodo dei nodi
@@ -71,7 +71,7 @@ Dopo la costruzione simbolica, il progetto consente di inserire valori di compon
 
 ## Visione del progetto
 
-MaglieNodi nasce con una finalita precisa: trasformare la costruzione del sistema circuitale in un processo esplicito, controllabile e leggibile.
+Noduloom nasce con una finalita precisa: trasformare la costruzione del sistema circuitale in un processo esplicito, controllabile e leggibile.
 
 Negli esercizi di elettrotecnica l'errore spesso non e nel conto finale, ma qui:
 

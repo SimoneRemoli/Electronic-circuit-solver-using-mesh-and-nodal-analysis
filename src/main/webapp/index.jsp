@@ -3,7 +3,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Carica circuito • Maglie/Nodi</title>
+  <title>Noduloom</title>
   <style>
     :root {
       --bg: #08131f;
@@ -405,7 +405,7 @@
     </div>
     <section class="hero">
       <div class="hero-panel">
-        <span class="eyebrow">Circuit Lab</span>
+        <span class="eyebrow">Noduloom</span>
         <h1>Imposta il circuito come su un banco prova digitale.</h1>
         <p class="hero-copy">
           Definisci il metodo, scegli quante maglie o nodi vuoi analizzare e configura il parco componenti.
@@ -554,7 +554,7 @@
 
   <script>
     (function () {
-      const STORAGE_KEY = 'maglienodi:index-draft:v1';
+      const STORAGE_KEY = 'noduloom:index-draft:v1';
       const form = document.getElementById('configForm');
       const methodSel = document.getElementById('method');
       const entitySection = document.getElementById('entitySection');

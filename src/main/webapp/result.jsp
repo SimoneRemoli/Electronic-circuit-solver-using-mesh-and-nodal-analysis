@@ -5,7 +5,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Associazione componenti</title>
+  <title>Noduloom • Associazione componenti</title>
   <style>
     :root {
       --bg: #09141d;
@@ -448,6 +448,44 @@
       margin-bottom: 8px;
     }
 
+    .branch-component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .branch-component-option {
+      position: relative;
+    }
+
+    .branch-component-option input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .branch-component-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border-radius: 10px;
+      border: 1px solid rgba(162, 191, 212, 0.16);
+      background: rgba(4, 13, 20, 0.7);
+      color: var(--text);
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease, transform .16s ease;
+    }
+
+    .branch-component-option input[type="checkbox"]:checked + label {
+      border-color: rgba(247, 184, 68, 0.55);
+      background: rgba(247, 184, 68, 0.14);
+      color: #ffe9af;
+      transform: translateY(-1px);
+    }
+
     .topology-meta {
       margin-top: 12px;
       color: var(--muted);
@@ -465,6 +503,33 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
       gap: 8px;
+    }
+
+    .danger-button {
+      border-color: rgba(255, 120, 120, 0.32);
+      color: #ffd3d3;
+      background: rgba(110, 18, 18, 0.18);
+    }
+
+    .danger-button:hover {
+      border-color: rgba(255, 120, 120, 0.48);
+      background: rgba(130, 24, 24, 0.24);
+    }
+
+    .topology-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(247, 184, 68, 0.24);
+      background: rgba(247, 184, 68, 0.10);
+      color: #ffe5a5;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     select {
@@ -659,6 +724,7 @@
       <div class="group-actions">
         <button class="ghost-button" type="button" id="addSeriesGroup">Aggiungi serie</button>
         <button class="ghost-button" type="button" id="addParallelGroup">Aggiungi parallelo</button>
+        <button class="ghost-button danger-button" type="button" id="clearGroups">Pulisci serie/paralleli</button>
       </div>
       <div id="groupsContainer"></div>
     </section>
@@ -672,13 +738,14 @@
       <input type="hidden" name="topologyMeshMarkersData" id="topologyMeshMarkersData">
       <% if ("NODI".equals(metodo)) { %>
         <div class="direction-select" style="max-width:360px; margin-bottom:16px;">
-          <label for="referenceTopologyNode">Nodo topologico di riferimento</label>
+          <label for="referenceTopologyNode">Nodo da eliminare / riferimento</label>
           <select id="referenceTopologyNode" name="referenceTopologyNode" data-preferred-label="<%= referenceNodeName %>"></select>
         </div>
       <% } %>
       <div class="topology-actions">
         <button class="ghost-button" type="button" id="addTopologyNode">Aggiungi nodo</button>
         <button class="ghost-button" type="button" id="addTopologyBranch">Aggiungi ramo</button>
+        <button class="ghost-button danger-button" type="button" id="clearTopology">Pulisci tutto</button>
       </div>
       <div class="topology-layout">
         <div class="topology-canvas" id="topologyCanvas">
@@ -752,7 +819,7 @@
 </div>
 <script>
   (function () {
-    const STORAGE_KEY = 'maglienodi:analysis-draft:v1';
+    const STORAGE_KEY = 'noduloom:analysis-draft:v1';
     const form = document.getElementById('analysisForm');
     if (!form) return;
 
@@ -817,6 +884,7 @@
     const groupsContainer = document.getElementById('groupsContainer');
     const seriesInput = document.getElementById('seriesGroupsData');
     const parallelInput = document.getElementById('parallelGroupsData');
+    const clearGroupsButton = document.getElementById('clearGroups');
     const groups = { series: [], parallel: [] };
 
     function sync() {
@@ -871,6 +939,15 @@
       sync();
     });
 
+    if (clearGroupsButton) {
+      clearGroupsButton.addEventListener('click', () => {
+        groups.series = [];
+        groups.parallel = [];
+        groupsContainer.innerHTML = '';
+        sync();
+      });
+    }
+
     function restoreGroups(kind, raw) {
       if (!raw) return;
       raw.split('|').filter(Boolean).forEach((group) => {
@@ -905,6 +982,7 @@
     const svg = document.getElementById('topologySvg');
     const nodesList = document.getElementById('topologyNodesList');
     const branchesList = document.getElementById('topologyBranchesList');
+    const clearTopologyButton = document.getElementById('clearTopology');
     const state = { nodes: [], branches: [], markers: [] };
     let dragId = null;
     let dragType = null;
@@ -964,6 +1042,16 @@
 
     function parseComponents(raw) {
       return (raw || '').split(',').map((item) => item.trim()).filter(Boolean);
+    }
+
+    function componentOptions(branchId, selectedComponents) {
+      const selected = new Set(selectedComponents || []);
+      return allComponents.map((code) =>
+        '<div class="branch-component-option">' +
+          '<input type="checkbox" class="branch-component-check" id="' + branchId + '_' + code + '" value="' + code + '"' + (selected.has(code) ? ' checked' : '') + '>' +
+          '<label for="' + branchId + '_' + code + '">' + code + '</label>' +
+        '</div>'
+      ).join('');
     }
 
     function componentInputValue(branch) {
@@ -1046,20 +1134,39 @@
 
     function renderNodesList() {
       nodesList.innerHTML = '';
+      const referenceSelect = document.getElementById('referenceTopologyNode');
+      const referenceNodeId = referenceSelect ? referenceSelect.value : '';
       state.nodes.forEach((node) => {
         const card = document.createElement('div');
         card.className = 'topology-card';
-        card.innerHTML =
+        let html = '';
+        if (referenceNodeId && referenceNodeId === node.id) {
+          html += '<div class="topology-badge">Nodo eliminato</div>';
+        }
+        html +=
           '<strong>' + node.id + '</strong>' +
           '<label>Etichetta</label>' +
           '<input type="text" value="' + node.label + '">' +
           '<label>Coordinate</label>' +
           '<div class="muted">x=' + Math.round(node.x) + ' y=' + Math.round(node.y) + '</div>';
+        if (referenceSelect) {
+          html += '<button class="ghost-button set-reference" type="button" style="margin-top:8px;">Usa come nodo eliminato</button>';
+        }
+        card.innerHTML = html;
         const input = card.querySelector('input');
         input.addEventListener('input', () => {
           node.label = input.value || node.id;
           render();
         });
+        const setReferenceButton = card.querySelector('.set-reference');
+        if (setReferenceButton && referenceSelect) {
+          setReferenceButton.addEventListener('click', () => {
+            referenceSelect.value = node.id;
+            syncTopologyBindings();
+            renderNodesList();
+            sync();
+          });
+        }
         nodesList.appendChild(card);
       });
     }
@@ -1123,7 +1230,8 @@
           '<label>Nodo finale</label>' +
           '<select class="to-node">' + nodeOptions(branch.to) + '</select>' +
           '<label>Componenti del ramo</label>' +
-          '<input type="text" class="branch-components" value="' + componentInputValue(branch) + '" placeholder="R1,L1,Vg2">' +
+          '<div class="branch-component-grid">' + componentOptions(branch.id, branch.components || []) + '</div>' +
+          '<div class="muted">Componenti selezionati: ' + ((branch.components || []).join(', ') || 'nessuno') + '</div>' +
           '<label>Descrizione</label>' +
           '<input type="text" class="branch-label" value="' + branch.label + '" placeholder="Ramo superiore">' +
           meshControls +
@@ -1141,23 +1249,15 @@
           branch.to = event.target.value;
           render();
         });
-        card.querySelector('.branch-components').addEventListener('input', (event) => {
-          branch.componentsText = event.target.value;
-          branch.components = parseComponents(branch.componentsText);
-          pruneSignMaps(branch);
-          const invalid = invalidComponents(branch);
-          event.target.setCustomValidity(invalid.length ? ('Componenti non validi: ' + invalid.join(', ')) : '');
-          event.target.title = invalid.length ? ('Componenti non validi: ' + invalid.join(', ')) : '';
-          sync();
-          draw();
+        card.querySelectorAll('.branch-component-check').forEach((checkbox) => {
+          checkbox.addEventListener('change', () => {
+            branch.components = Array.from(card.querySelectorAll('.branch-component-check:checked')).map((input) => input.value);
+            branch.componentsText = branch.components.join(',');
+            pruneSignMaps(branch);
+            sync();
+            render();
+          });
         });
-        card.querySelector('.branch-components').addEventListener('blur', () => {
-          render();
-        });
-        const initialInvalid = invalidComponents(branch);
-        const componentInput = card.querySelector('.branch-components');
-        componentInput.setCustomValidity(initialInvalid.length ? ('Componenti non validi: ' + initialInvalid.join(', ')) : '');
-        componentInput.title = initialInvalid.length ? ('Componenti non validi: ' + initialInvalid.join(', ')) : '';
         card.querySelector('.branch-label').addEventListener('input', (event) => {
           branch.label = event.target.value;
           sync();
@@ -1361,6 +1461,35 @@
       });
       render();
     });
+
+    if (clearTopologyButton) {
+      clearTopologyButton.addEventListener('click', () => {
+        state.nodes = [];
+        state.branches = [];
+        state.markers = [];
+        const referenceSelect = document.getElementById('referenceTopologyNode');
+        if (referenceSelect) {
+          referenceSelect.innerHTML = '';
+        }
+        document.querySelectorAll('.topology-node-binding').forEach((select) => {
+          select.innerHTML = '';
+        });
+        const groupsContainerElement = document.getElementById('groupsContainer');
+        if (groupsContainerElement) {
+          groupsContainerElement.innerHTML = '';
+        }
+        const seriesGroupsInput = document.getElementById('seriesGroupsData');
+        const parallelGroupsInput = document.getElementById('parallelGroupsData');
+        if (seriesGroupsInput) {
+          seriesGroupsInput.value = '';
+        }
+        if (parallelGroupsInput) {
+          parallelGroupsInput.value = '';
+        }
+        sync();
+        render();
+      });
+    }
 
     if (topologyInput.value) {
       try {

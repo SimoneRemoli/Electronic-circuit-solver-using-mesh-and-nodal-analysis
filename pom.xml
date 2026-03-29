@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.example</groupId>
-  <artifactId>MaglieNodi</artifactId>
+  <artifactId>Noduloom</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>MaglieNodi Maven Webapp</name>
+  <name>Noduloom Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -60,7 +60,7 @@
 
   </dependencies>
   <build>
-    <finalName>MaglieNodi</finalName>
+    <finalName>Noduloom</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

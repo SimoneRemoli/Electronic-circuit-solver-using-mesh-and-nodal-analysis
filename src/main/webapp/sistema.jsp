@@ -4,7 +4,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sistema circuitale — LaTeX</title>
+  <title>Noduloom • Sistema circuitale</title>
   <script>
     window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
   </script>
