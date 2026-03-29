@@ -1,6 +1,6 @@
 # Noduloom
 
-<img width="423" height="422" alt="Screenshot 2026-03-29 alle 15 29 56" src="https://github.com/user-attachments/assets/b1a70fe6-bbd8-4977-8a2d-bfff459d0f7e" />
+<img width="423" height="422"  align="center" alt="Screenshot 2026-03-29 alle 15 29 56" src="https://github.com/user-attachments/assets/b1a70fe6-bbd8-4977-8a2d-bfff459d0f7e" />
 
 
 
