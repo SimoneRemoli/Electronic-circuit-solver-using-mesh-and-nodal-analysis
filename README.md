@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/noduloom-logo.png" alt="Noduloom logo" width="360">
+  <img src="./docs/images/noduloom-logo.png" alt="Noduloom logo" width="360" />
 </p>
 
 <h1 align="center">Noduloom</h1>
