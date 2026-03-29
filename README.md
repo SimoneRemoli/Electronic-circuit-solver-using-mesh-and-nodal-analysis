@@ -122,32 +122,6 @@ docs/images/                         Project visuals, screenshots, and branding 
 pom.xml                              Maven build configuration
 ```
 
-## Screenshots
-
-### Initial Configuration
-
-The entry screen defines the analysis method, the number of unknowns, and the available inventory of components.
-
-![Initial configuration](docs/images/hero-home.png)
-
-### Topology Editor
-
-The circuit is built as a graph, where nodes, branches, component assignment, and source orientation are explicitly defined.
-
-![Topology editor](docs/images/topology-editor.png)
-
-### Symbolic System
-
-After the topology is formalized, Noduloom generates the symbolic matrix and the related circuit equations.
-
-![Symbolic system](docs/images/nodal-system.png)
-
-### Numerical Solving
-
-The final step allows the user to provide numerical values and obtain the full solved system.
-
-![Numerical solving](docs/images/numeric-values.png)
-
 ## Vision
 
 Noduloom is built around a simple idea:
