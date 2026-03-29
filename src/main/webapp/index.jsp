@@ -54,8 +54,28 @@
 
     .topbar {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
       margin-bottom: 16px;
+    }
+
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand-link img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
     }
 
     .ghost-link {
@@ -401,6 +421,10 @@
 <body>
   <div class="shell">
     <div class="topbar">
+      <a class="brand-link" href="<%= request.getContextPath() %>/index.jsp">
+        <img src="<%= request.getContextPath() %>/assets/noduloom-logo.png" alt="Logo Noduloom" />
+        <span>Noduloom</span>
+      </a>
       <a class="ghost-link" href="<%= request.getContextPath() %>/index.jsp">Nuova configurazione</a>
     </div>
     <section class="hero">

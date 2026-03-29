@@ -10,17 +10,32 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" defer></script>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 2rem; }
-    .card { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; border:1px solid #ddd; border-radius: 12px; }
-    .muted { color:#666; }
+    body { font-family: system-ui, sans-serif; margin: 2rem; background:#f4f7fa; color:#173042; }
+    .card { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; border:1px solid #d7e1e8; border-radius: 12px; background:#fff; box-shadow: 0 14px 32px rgba(23, 48, 66, 0.08); }
+    .muted { color:#5f7383; }
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
-    .field { border:1px solid #e2e2e2; border-radius:10px; padding:.85rem; }
+    .field { border:1px solid #e2e8ee; border-radius:10px; padding:.85rem; background:#fbfdff; }
     label { display:block; font-weight:600; margin-bottom:.25rem; }
     input { width:100%; box-sizing:border-box; padding:.45rem .6rem; margin-bottom:.5rem; }
     button { padding:.75rem 1rem; border:0; border-radius:10px; cursor:pointer; }
     .primary { background:#0b5ed7; color:#fff; }
     .error { color:#a40000; }
-    .topbar { max-width: 1100px; margin: 0 auto 1rem; display:flex; justify-content:flex-end; }
+    .topbar { max-width: 1100px; margin: 0 auto 1rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    .brand-link {
+      display:inline-flex;
+      align-items:center;
+      gap:.75rem;
+      color:#173042;
+      text-decoration:none;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .brand-link img {
+      width:52px;
+      height:52px;
+      object-fit:contain;
+    }
     .ghost-button {
       padding:.75rem 1rem;
       border-radius:10px;
@@ -34,6 +49,10 @@
 </head>
 <body>
   <div class="topbar">
+    <a class="brand-link" href="<%= request.getContextPath() %>/index.jsp">
+      <img src="<%= request.getContextPath() %>/assets/noduloom-logo.png" alt="Logo Noduloom">
+      <span>Noduloom</span>
+    </a>
     <button class="ghost-button" type="button" onclick="history.back()">Torna indietro</button>
   </div>
   <div class="card">
