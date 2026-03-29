@@ -1,16 +1,10 @@
-| |
-|:--:|
-| ![Noduloom logo](docs/images/noduloom-logo.png) |
+# Noduloom
 
-<h1 align="center">Noduloom</h1>
+![Noduloom logo](docs/images/noduloom-logo.png)
 
-<p align="center">
-  <strong>A visual circuit analysis studio for building, formalizing, and solving electrical systems with nodal and mesh methods.</strong>
-</p>
+A visual circuit analysis studio for building, formalizing, and solving electrical systems with nodal and mesh methods.
 
-<p align="center">
-  Noduloom turns circuit analysis into a guided workflow: define the method, model the topology, generate the symbolic system, and solve it numerically.
-</p>
+Noduloom turns circuit analysis into a guided workflow: define the method, model the topology, generate the symbolic system, and solve it numerically.
 
 ---
 
