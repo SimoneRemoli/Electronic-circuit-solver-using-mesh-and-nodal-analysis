@@ -1,6 +1,6 @@
 # Noduloom
 
-![Noduloom logo](docs/images/noduloom-logo.png)
+![Noduloom logo](docs/images/noduloom-brand.png)
 
 A visual circuit analysis studio for building, formalizing, and solving electrical systems with nodal and mesh methods.
 
