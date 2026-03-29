@@ -8,6 +8,9 @@
   </tr>
 </table>
 
+Presentation Video: https://www.youtube.com/watch?v=Mra8WD_o_JE
+
+
 A visual circuit analysis studio for building, formalizing, and solving electrical systems with nodal and mesh methods.
 
 Noduloom turns circuit analysis into a guided workflow: define the method, model the topology, generate the symbolic system, and solve it numerically.
