@@ -1,90 +1,160 @@
 # Noduloom
 
-Noduloom è un'applicazione web didattica per costruire, visualizzare e risolvere circuiti elettrici nel dominio dei fasori con:
+<p align="center">
+  <img src="docs/images/noduloom-logo.png" alt="Noduloom logo" width="280">
+</p>
 
-- metodo delle maglie
-- metodo dei nodi
-- costruzione simbolica del sistema
-- risoluzione numerica finale
+<p align="center">
+  <strong>A visual circuit analysis studio for building, formalizing, and solving electrical systems with nodal and mesh methods.</strong>
+</p>
 
-L'obiettivo non è solo ottenere un risultato, ma rendere leggibile il passaggio da schema circuitale a sistema di equazioni.
+<p align="center">
+  Noduloom turns circuit analysis into a guided workflow: define the method, model the topology, generate the symbolic system, and solve it numerically.
+</p>
 
-## Vetrina
+---
 
-### Configurazione iniziale
+## Overview
 
-La schermata iniziale imposta metodo di analisi, numero di incognite e inventario dei componenti disponibili.
+Noduloom is a Java web application designed for circuit analysis in the phasor domain.  
+It supports both **nodal analysis** and **mesh analysis**, with a strong focus on clarity, topology-driven modeling, and readable mathematical output.
 
-![Home del software](docs/images/hero-home.png)
+Instead of jumping directly to formulas, the application helps the user describe the circuit structure first.  
+That topological description is then converted into the corresponding system of equations and, finally, into a numerical solution.
 
-### Editor topologico
+This makes Noduloom especially suitable for:
 
-Il circuito viene costruito come grafo: nodi, rami, componenti, versi dei generatori e associazioni utili alla costruzione del sistema.
+- electrical engineering coursework
+- guided demonstrations and presentations
+- methodical circuit formalization
+- educational use where sign conventions and branch orientation matter
 
-![Editor topologico](docs/images/topology-editor.png)
+## Core Features
 
-### Sistema simbolico
+- Support for **nodal method** and **mesh method**
+- Interactive **topology editor** with nodes and branches
+- Explicit handling of:
+  - resistors `R`
+  - inductors `L`
+  - capacitors `C`
+  - current sources `Ig`
+  - voltage sources `Vg`
+- Branch-based component assignment through guided selection
+- Support for passive component grouping in **series** and **parallel**
+- Reference node selection for nodal analysis
+- Symbolic generation of:
+  - matrix form
+  - expanded equations
+  - additional constraints
+  - full final system
+- Numerical solving with real and phasor values
 
-Una volta definita la topologia, il software genera la matrice del sistema, le equazioni espanse e le relazioni aggiuntive.
+## Workflow
 
-![Sistema dei nodi](docs/images/nodal-system.png)
+### 1. Configure the analysis
 
-### Inserimento valori numerici
+The user starts by selecting the analysis method and defining:
 
-Dopo la costruzione simbolica, il progetto consente di inserire valori di componenti e generatori nel dominio complesso.
+- the number of unknowns
+- the available circuit components
+- the mesh current directions, when mesh analysis is used
+- the reference node, when nodal analysis is used
 
-![Valori numerici](docs/images/numeric-values.png)
+### 2. Build the circuit topology
 
-## Cosa fa
+The circuit is modeled visually as a graph.
 
-- costruisce sistemi circuitali con metodo delle maglie e metodo dei nodi
-- gestisce componenti passivi `R`, `L`, `C`
-- gestisce generatori di corrente `Ig` e generatori di tensione `Vg`
-- supporta gruppi equivalenti in serie e in parallelo
-- consente la definizione topologica del circuito tramite editor visuale
-- produce forma matriciale, equazioni espanse e sistema completo
-- accetta valori numerici e fasoriali per la risoluzione finale
+The user can:
 
-## Punti forti
+- add nodes
+- add branches
+- assign components to each branch with checkboxes
+- define branch orientation and source polarity
+- select the node eliminated as reference in nodal analysis
+- clear the topology or clear series/parallel groups independently
 
-- approccio visivo: il circuito viene prima costruito come struttura topologica
-- approccio formale: il sistema viene mostrato in forma matematica leggibile
-- approccio didattico: il focus e sul ragionamento, non solo sulla risposta finale
-- workflow completo: dalla configurazione iniziale alla soluzione numerica
+### 3. Generate the symbolic system
 
-## Flusso di utilizzo
+Once the topology is complete, Noduloom builds the corresponding symbolic system and displays:
 
-1. Scegli il metodo di analisi.
-2. Definisci quante incognite vuoi usare.
-3. Imposta l'inventario dei componenti.
-4. Costruisci il circuito nell'editor topologico.
-5. Specifica rami, componenti, orientazioni e relazioni utili.
-6. Genera il sistema simbolico.
-7. Inserisci i valori numerici e risolvi.
+- the matrix representation
+- the expanded equations
+- the additional relations required by the circuit
+- the full system in readable form
 
-## Stack
+### 4. Solve numerically
 
-- Java Servlet
+In the final step, the user enters component values and source phasors, together with angular frequency when required.  
+The application then computes and displays the numerical system and its solution.
+
+## Why Noduloom
+
+Many mistakes in circuit analysis do not come from the final algebraic step.  
+They come earlier:
+
+- wrong current directions
+- inconsistent sign conventions
+- incorrect handling of shared branches
+- poor interpretation of generators
+- loss of structure between circuit drawing and equation system
+
+Noduloom addresses exactly that stage.  
+Its purpose is not only to solve circuits, but to make the construction of the system **explicit, inspectable, and teachable**.
+
+## Technology Stack
+
+- Java
+- Java Servlet API
 - JSP
-- Maven e Tomcat
-- MathJax per il rendering delle formule
+- Maven
+- Tomcat-compatible deployment
+- MathJax for formula rendering
 
-## Visione del progetto
+## Project Structure
 
-Noduloom nasce con una finalita precisa: trasformare la costruzione del sistema circuitale in un processo esplicito, controllabile e leggibile.
+```text
+src/main/java/com/example/servlet/   Core servlets, symbolic generation, topology logic, solver
+src/main/webapp/                     JSP views and web resources
+docs/images/                         Project visuals, screenshots, and branding assets
+pom.xml                              Maven build configuration
+```
 
-Negli esercizi di elettrotecnica l'errore spesso non e nel conto finale, ma qui:
+## Screenshots
 
-- segni sbagliati
-- versi non coerenti
-- generatori trattati male
-- componenti condivisi interpretati in modo scorretto
-- equivalenti serie/parallelo persi durante la formalizzazione
+### Initial Configuration
 
-Questo progetto prova a intervenire proprio in quella fase.
+The entry screen defines the analysis method, the number of unknowns, and the available inventory of components.
 
-## Autore
+![Initial configuration](docs/images/hero-home.png)
+
+### Topology Editor
+
+The circuit is built as a graph, where nodes, branches, component assignment, and source orientation are explicitly defined.
+
+![Topology editor](docs/images/topology-editor.png)
+
+### Symbolic System
+
+After the topology is formalized, Noduloom generates the symbolic matrix and the related circuit equations.
+
+![Symbolic system](docs/images/nodal-system.png)
+
+### Numerical Solving
+
+The final step allows the user to provide numerical values and obtain the full solved system.
+
+![Numerical solving](docs/images/numeric-values.png)
+
+## Vision
+
+Noduloom is built around a simple idea:
+
+> circuit analysis should be understandable before it becomes numerical.
+
+The application bridges the gap between the visual structure of a circuit and the formal structure of its equations, making the reasoning process easier to present, debug, and teach.
+
+## Author
 
 **Simone Remoli**
 
-Progetto sviluppato come applicazione dedicata alla rappresentazione e alla risoluzione di sistemi circuitali, con impostazione coerente con il corso di Elettrotecnica per Ingegneria Informatica.
+Developed as a circuit-analysis application with a presentation style aligned with engineering education and structured problem solving.
