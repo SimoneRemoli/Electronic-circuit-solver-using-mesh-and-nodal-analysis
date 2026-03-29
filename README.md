@@ -1,8 +1,8 @@
-# Noduloom
+<p align="center">
+  <img src="docs/images/noduloom-logo.png" alt="Noduloom logo" width="360">
+</p>
 
-<img width="423" height="422"  align="center" alt="Screenshot 2026-03-29 alle 15 29 56" src="https://github.com/user-attachments/assets/b1a70fe6-bbd8-4977-8a2d-bfff459d0f7e" />
-
-
+<h1 align="center">Noduloom</h1>
 
 <p align="center">
   <strong>A visual circuit analysis studio for building, formalizing, and solving electrical systems with nodal and mesh methods.</strong>
